@@ -1,38 +1,73 @@
 # TYI UAV Firmware
 
-该仓库是 UAV-NX ROS1 基础栈的客户交付版本。
-客户可以直接查看源码，并通过 `docker compose` 完成构建和运行。
+面向客户交付的 UAV-NX ROS1 基础固件仓库。
+客户可直接查看源码，并通过 `docker compose` 完成构建、部署与运行。
 
 英文版：[README.md](README.md)
 
 当前版本：[VERSION](VERSION)
 
-## 包含模块
+## 本仓库提供的内容
 
-- `livox_ros_driver2`
-- `dlio`
-- `fastlio_to_mavros`
-- `mavros`
-- `mavlink`
-- `uav_base_bringup`
+- 面向 Ubuntu 20.04 + ROS1 Noetic 的可见源码部署包
+- 通过 [machine.env](machine.env) 收敛机型差异配置
+- 基于 Docker 的 `livox_ros_driver2`、`dlio`、`fastlio_to_mavros`、`mavros`、`mavlink`、`uav_base_bringup` 启动能力
+- 面向客户的部署与运维脚本
 
-## 客户使用流程
+## 运行链路
 
-1. 按机型修改 [machine.env](machine.env)。
-2. 执行 `bash ./scripts/deploy.sh`。
-3. 通过 `bash ./scripts/status.sh` 确认容器状态。
-4. 日常运行时可使用 `bash ./scripts/logs.sh` 或 `bash ./scripts/enter.sh`。
+`Livox MID360 -> DLIO -> fastlio_to_mavros -> MAVROS -> PX4`
 
-该目录只保留面向客户的部署与运维入口。
-内部烟测和研发调试脚本不会在这里保留。
+## 快速开始
 
-## 快捷入口
+```bash
+git clone git@github.com:TYI-Tech/TYI_UAV_Firmware.git
+cd TYI_UAV_Firmware
+bash ./scripts/check_host.sh
+vim machine.env
+bash ./scripts/deploy.sh
+```
+
+部署完成后：
+
+```bash
+bash ./scripts/status.sh
+bash ./scripts/logs.sh
+bash ./scripts/enter.sh
+```
+
+## 客户通常需要修改的内容
+
+- [machine.env](machine.env)
+  机型 UART、MID360 序列号/IP、宿主机网卡设置
+- [configs/fastlio_to_mavros/bridge.yaml](configs/fastlio_to_mavros/bridge.yaml)
+  后续如需接入控制桥接，可在此调整桥接话题与参考坐标系
+- [configs/dlio](configs/dlio)
+  DLIO 运行参数
+- [configs/mavros](configs/mavros)
+  MAVROS 插件与 FCU 参数
+
+## 建议先看
 
 - [英文快速上手](docs/en_US/quick_start.md)
 - [中文快速上手](docs/zh_CN/快速上手.md)
+- [文档总索引](docs/README.md)
 - [英文文档索引](docs/en_US/README.md)
 - [中文文档索引](docs/zh_CN/README.md)
 - [更新记录](CHANGELOG.md)
+
+## 仓库结构
+
+- `configs/`
+  挂载进容器的运行配置
+- `docker/`
+  Docker 构建与运行入口
+- `scripts/`
+  面向客户的运维脚本
+- `third_party/`
+  构建所需的内置第三方依赖
+- `workspace/src/`
+  运行时使用的 ROS 源码包
 
 ## 可选控制桥接包
 
@@ -41,3 +76,8 @@
 ```bash
 sudo apt install tyi-plugin-ctl
 ```
+
+## 仓库定位
+
+该仓库用于客户部署与现场运行。
+内部烟测入口和研发专用调试入口不会放在这里。

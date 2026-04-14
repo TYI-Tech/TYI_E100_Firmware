@@ -1,12 +1,13 @@
 # Quick Start
 
-This package is intended for customer deployment on Ubuntu 20.04 with Docker and Docker Compose available.
+This repository is intended for customer deployment on Ubuntu 20.04 with Docker and Docker Compose available.
 The only file that normally needs editing is `machine.env`.
 
 ## First deployment
 
 ```bash
-cd firmware/base_stack_noetic_customer
+git clone git@github.com:TYI-Tech/TYI_UAV_Firmware.git
+cd TYI_UAV_Firmware
 bash ./scripts/check_host.sh
 vim machine.env
 bash ./scripts/deploy.sh
@@ -19,6 +20,12 @@ bash ./scripts/deploy.sh
 - starts the runtime container in the background
 
 `check_host.sh` verifies that Docker, Docker Compose, and the required configuration files are present before deployment.
+
+Expected result after `deploy.sh`:
+
+- the Docker image is built from the local source tree
+- the `base-stack` service is started in the background
+- customers can inspect the runtime through `status.sh`, `logs.sh`, and `enter.sh`
 
 ## After deployment
 

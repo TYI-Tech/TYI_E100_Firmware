@@ -1,5 +1,7 @@
 # Operations
 
+These commands are the main customer-facing operation entrypoints.
+
 ## Start or redeploy
 
 ```bash
