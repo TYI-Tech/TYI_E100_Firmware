@@ -1,5 +1,5 @@
-<p align="right">
-  <img src="assets/logo.png" alt="TYI Innovation" width="160">
+<p align="center">
+  <img src="assets/logo.png" alt="TYI Innovation" width="240">
 </p>
 
 # TYI E100 固件
