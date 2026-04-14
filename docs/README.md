@@ -5,6 +5,4 @@
 - [中文文档](zh_CN/README.md)
 - [English Documentation](en_US/README.md)
 - [中文版本说明](zh_CN/版本说明.md)
-- [中文发布流程](zh_CN/发布流程.md)
 - [English Release Notes](en_US/release_notes.md)
-- [English Release Process](en_US/release_process.md)

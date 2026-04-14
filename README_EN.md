@@ -72,12 +72,10 @@ Notes:
 - [Chinese quick start](docs/zh_CN/%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B.md)
 - [Chinese documentation](docs/zh_CN/README.md)
 - [Chinese release notes](docs/zh_CN/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E.md)
-- [Chinese release process](docs/zh_CN/%E5%8F%91%E5%B8%83%E6%B5%81%E7%A8%8B.md)
 - [Documentation index](docs/README.md)
 - [English quick start](docs/en_US/quick_start.md)
 - [English documentation](docs/en_US/README.md)
 - [English release notes](docs/en_US/release_notes.md)
-- [English release process](docs/en_US/release_process.md)
 - [Changelog](CHANGELOG.md)
 
 ## Repository Layout
