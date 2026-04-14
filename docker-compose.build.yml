@@ -1,0 +1,5 @@
+services:
+  base-stack:
+    build:
+      context: .
+      dockerfile: docker/runtime/Dockerfile

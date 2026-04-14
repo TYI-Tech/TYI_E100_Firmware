@@ -2,4 +2,9 @@
 set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
-run_compose up -d
+
+if [[ "${1:-}" == "--build" ]]; then
+  run_compose_build_mode up -d --build
+else
+  run_compose up -d
+fi

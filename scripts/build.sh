@@ -2,4 +2,4 @@
 set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
-run_compose build
+run_compose_build_mode build

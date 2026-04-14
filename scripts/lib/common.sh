@@ -27,7 +27,15 @@ run_compose() {
   local cmd
   cmd="$(compose_cmd)"
   # shellcheck disable=SC2086
-  ${cmd} "$@"
+  ${cmd} -f docker-compose.yml "$@"
+}
+
+run_compose_build_mode() {
+  cd "${ROOT_DIR}"
+  local cmd
+  cmd="$(compose_cmd)"
+  # shellcheck disable=SC2086
+  ${cmd} -f docker-compose.yml -f docker-compose.build.yml "$@"
 }
 
 require_file() {

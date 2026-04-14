@@ -6,7 +6,10 @@
 
 ROS1 product firmware repository for `TYI E100`.
 This repository keeps the runtime source visible and provides the build and runtime entrypoints through `docker compose`.
-The current release has been validated with a clean on-board source build and runtime bring-up.
+The current release supports both:
+
+- running from a prebuilt image
+- building and running directly from the checked-out source tree
 
 Chinese homepage: [README.md](README.md)
 
@@ -33,6 +36,19 @@ vim machine.env
 bash ./scripts/deploy.sh
 ```
 
+For a local source build instead:
+
+```bash
+bash ./scripts/deploy.sh --build
+```
+
+To log in and pull the prebuilt image manually:
+
+```bash
+docker login --username=hyzrichard crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com
+docker pull crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:0.1.1
+```
+
 After deployment:
 
 ```bash
@@ -52,7 +68,9 @@ For a first-time bring-up with the fewest decisions, use this order:
 
 Notes:
 
-- `deploy.sh` builds the runtime image directly from the checked-out source tree
+- `deploy.sh` pulls the prebuilt ACR image and starts it by default
+- `deploy.sh --build` switches to local source-build mode
+- if the machine does not have registry access, use `--build`
 - the build now includes the required GeographicLib geoid locally and retries the base `apt` bootstrap path
 - machine-specific differences are expected to stay within `machine.env`
 
