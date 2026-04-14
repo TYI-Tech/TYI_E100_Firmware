@@ -10,7 +10,6 @@ The default recommendation is to pull the prebuilt image first, and only switch 
 git clone git@github.com:TYI-Tech/TYI_E100_Firmware.git
 cd TYI_E100_Firmware
 bash ./scripts/check_host.sh
-docker login --username=hyzrichard crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com
 vim machine.env
 bash ./scripts/deploy.sh
 ```
@@ -42,7 +41,6 @@ bash ./scripts/deploy.sh --build
 ```
 
 This mode applies `docker-compose.build.yml` as an additional Compose override.
-It is also the recommended fallback when the target machine cannot access the image registry.
 
 Additional notes:
 

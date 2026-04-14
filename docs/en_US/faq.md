@@ -19,18 +19,6 @@ It pulls a prebuilt image by default.
 `bash ./scripts/deploy.sh` uses the prebuilt image from ACR.
 Use `bash ./scripts/deploy.sh --build` when a local source build is required.
 
-## Is registry login required before using the prebuilt image?
-
-Usually yes.
-
-Run:
-
-```bash
-docker login --username=hyzrichard crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com
-```
-
-If registry access is not available on the target machine, use `bash ./scripts/deploy.sh --build` instead.
-
 ## Is a stable image alias available?
 
 Yes.

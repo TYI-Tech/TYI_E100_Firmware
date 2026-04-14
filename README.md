@@ -42,10 +42,9 @@ bash ./scripts/deploy.sh
 bash ./scripts/deploy.sh --build
 ```
 
-如需手动登录并预拉取镜像：
+如需手动预拉取镜像：
 
 ```bash
-docker login --username=hyzrichard crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com
 docker pull crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:0.1.2
 ```
 
@@ -77,7 +76,6 @@ bash ./scripts/enter.sh
 - `deploy.sh` 会直接基于当前仓库源码构建镜像，不依赖外部隐藏源码包
 - `deploy.sh` 默认直接拉取 ACR 预编译镜像并启动
 - `deploy.sh --build` 会切换到本地源码构建模式
-- 如当前机器没有镜像仓库访问权限，可直接使用 `--build`
 - 构建阶段已内置 GeographicLib 关键 geoid 资源，并对基础 `apt` 安装增加重试处理
 - 机型差异默认通过 `machine.env` 收敛，不需要手动改动多个配置文件
 

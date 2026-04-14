@@ -17,7 +17,7 @@ Main updates:
 Operational conclusion:
 
 - users can now prefer the prebuilt image for faster deployment
-- users without registry access can still deploy from source with `--build`
+- users can still deploy from source with `--build` when local customization is required
 - the default published runtime image is now `0.1.2`, aligned with the repository workflow version
 
 ## 0.1.1

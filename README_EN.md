@@ -42,10 +42,9 @@ For a local source build instead:
 bash ./scripts/deploy.sh --build
 ```
 
-To log in and pull the prebuilt image manually:
+To pull the prebuilt image manually:
 
 ```bash
-docker login --username=hyzrichard crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com
 docker pull crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:0.1.2
 ```
 
@@ -76,7 +75,6 @@ Notes:
 
 - `deploy.sh` pulls the prebuilt ACR image and starts it by default
 - `deploy.sh --build` switches to local source-build mode
-- if the machine does not have registry access, use `--build`
 - the build now includes the required GeographicLib geoid locally and retries the base `apt` bootstrap path
 - machine-specific differences are expected to stay within `machine.env`
 
