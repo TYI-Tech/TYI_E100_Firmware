@@ -1,0 +1,20 @@
+<launch>
+  <!-- MAVROS 必须已启动且连接PX4 -->
+  <!-- 你的 fast-lio 节点也要在跑，并发布 /Odometry -->
+
+  <node pkg="fastlio_to_mavros" type="fastlio_to_mavros" name="fastlio_to_mavros" output="screen">
+    <param name="window_size" value="8"/>
+    <param name="fastlio_topic" value="/robot/dlio/odom_node/odom"/>
+    <param name="px4_odom_topic" value="/mavros/local_position/odom"/>
+    <param name="vision_topic" value="/mavros/vision_pose/pose"/>
+    <param name="vision_frame_id" value="map"/> <!-- 或者 "odom" 两者选其一，保持一致 -->
+    <param name="use_lidar_extrinsic" value="false"/>
+
+    <!-- 若需要外参，把下面打开并填上(w,x,y,z) 和 (x,y,z) -->
+    <!--
+    <param name="use_lidar_extrinsic" value="true"/>
+    <rosparam param="q_base_from_lidar">[1.0, 0.0, 0.0, 0.0]</rosparam>
+    <rosparam param="t_base_from_lidar">[0.0, 0.0, 0.0]</rosparam>
+    -->
+  </node>
+</launch>

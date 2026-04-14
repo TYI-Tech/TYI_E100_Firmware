@@ -1,0 +1,39 @@
+
+dlio:
+
+  version: 1.1.1
+
+  adaptive: true
+
+  pointcloud:
+    deskew: true
+    voxelize: true
+
+  imu:
+    calibration: true
+    intrinsics:
+      accel:
+        bias: [ 0.0, 0.0, 0.0 ]
+        sm:   [ 1.,  0.,  0.,
+                0.,  1.,  0.,
+                0.,  0.,  1. ]
+      gyro:
+        bias: [ 0.0, 0.0, 0.0 ]
+
+  extrinsics:
+    baselink2imu:
+      t: [ 0,0,0 ]
+      R: [ 1.,  0.,  0.,
+           0.,  1.,  0.,
+           0.,  0.,  1. ]
+    baselink2lidar:
+      t: [ 0.,  0.,  0. ]
+      R: [ 1.,  0.,  0.,
+           0.,  1.,  0.,
+           0.,  0.,  1. ]
+      # R: [-0.0000000, -1.0000000,  0.0000000,
+      #     -1.0000000, -0.0000000,  0.0000000,
+      #     0.0000000,  0.0000000, -1.0000000  ]  #hilti    
+
+
+

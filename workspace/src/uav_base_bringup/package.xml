@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>uav_base_bringup</name>
+  <version>0.1.0</version>
+  <description>Production-oriented bringup package for the uav-nx base LiDAR to PX4 stack.</description>
+
+  <maintainer email="alender-labs@users.noreply.github.com">Alender-Labs</maintainer>
+  <license>Proprietary</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>dlio</exec_depend>
+  <exec_depend>fastlio_to_mavros</exec_depend>
+  <exec_depend>livox_ros_driver2</exec_depend>
+  <exec_depend>mavros</exec_depend>
+  <exec_depend>roslaunch</exec_depend>
+
+  <export />
+</package>

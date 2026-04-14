@@ -1,0 +1,10 @@
+.env
+logs
+**/.git
+**/.github
+**/build
+**/devel
+**/install
+**/.catkin_tools
+**/__pycache__
+**/*.pyc

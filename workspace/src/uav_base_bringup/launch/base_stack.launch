@@ -1,0 +1,71 @@
+<launch>
+  <arg name="config_root" default="$(optenv UAV_CONFIG_DIR /opt/uav/configs)" />
+  <arg name="robot_namespace" default="$(optenv DLIO_NAMESPACE robot)" />
+
+  <arg name="livox_bd_list" default="$(optenv LIVOX_BD_LIST 147MDLC40020242)" />
+  <arg name="livox_frame_id" default="$(optenv LIVOX_FRAME_ID livox_frame)" />
+  <arg name="livox_publish_freq" default="$(optenv LIVOX_PUBLISH_FREQ 20.0)" />
+
+  <arg name="fcu_url" default="$(optenv FCU_URL /dev/ttyTHS0:115200)" />
+  <arg name="gcs_url" default="$(optenv GCS_URL udp://@192.168.110.227:14550)" />
+  <arg name="tgt_system" default="$(optenv MAVROS_TGT_SYSTEM 1)" />
+  <arg name="tgt_component" default="$(optenv MAVROS_TGT_COMPONENT 1)" />
+  <arg name="fcu_protocol" default="$(optenv MAVROS_FCU_PROTOCOL v2.0)" />
+  <arg name="log_output" default="$(optenv MAVROS_LOG_OUTPUT screen)" />
+  <arg name="respawn_mavros" default="$(optenv MAVROS_RESPAWN false)" />
+
+  <node name="livox_lidar_publisher2"
+        pkg="livox_ros_driver2"
+        type="livox_ros_driver2_node"
+        output="screen"
+        required="true"
+        args="$(arg livox_bd_list)">
+    <param name="xfer_format" value="1" />
+    <param name="multi_topic" value="0" />
+    <param name="data_src" value="0" />
+    <param name="publish_freq" type="double" value="$(arg livox_publish_freq)" />
+    <param name="output_data_type" value="0" />
+    <param name="cmdline_str" type="string" value="$(arg livox_bd_list)" />
+    <param name="cmdline_file_path" type="string" value="livox_test.lvx" />
+    <param name="user_config_path" type="string" value="$(arg config_root)/livox/MID360_config.json" />
+    <param name="frame_id" type="string" value="$(arg livox_frame_id)" />
+    <param name="enable_lidar_bag" type="bool" value="true" />
+    <param name="enable_imu_bag" type="bool" value="true" />
+  </node>
+
+  <node ns="$(arg robot_namespace)"
+        name="dlio_odom"
+        pkg="dlio"
+        type="dlio_odom"
+        output="screen"
+        clear_params="true">
+    <rosparam file="$(arg config_root)/dlio/dlio.yaml" command="load" />
+    <rosparam file="$(arg config_root)/dlio/params.yaml" command="load" />
+    <remap from="~pointcloud" to="/livox/lidar" />
+    <remap from="~imu" to="/livox/imu" />
+    <remap from="~odom" to="dlio/odom_node/odom" />
+    <remap from="~pose" to="dlio/odom_node/pose" />
+    <remap from="~path" to="dlio/odom_node/path" />
+    <remap from="~kf_pose" to="dlio/odom_node/keyframes" />
+    <remap from="~kf_cloud" to="dlio/odom_node/pointcloud/keyframe" />
+  </node>
+
+  <node pkg="fastlio_to_mavros"
+        type="fastlio_to_mavros"
+        name="fastlio_to_mavros"
+        output="screen">
+    <rosparam file="$(arg config_root)/fastlio_to_mavros/bridge.yaml" command="load" />
+  </node>
+
+  <include file="$(find mavros)/launch/node.launch">
+    <arg name="pluginlists_yaml" value="$(arg config_root)/mavros/px4_pluginlists.yaml" />
+    <arg name="config_yaml" value="$(arg config_root)/mavros/px4_config.yaml" />
+    <arg name="fcu_url" value="$(arg fcu_url)" />
+    <arg name="gcs_url" value="$(arg gcs_url)" />
+    <arg name="tgt_system" value="$(arg tgt_system)" />
+    <arg name="tgt_component" value="$(arg tgt_component)" />
+    <arg name="log_output" value="$(arg log_output)" />
+    <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
+    <arg name="respawn_mavros" value="$(arg respawn_mavros)" />
+  </include>
+</launch>

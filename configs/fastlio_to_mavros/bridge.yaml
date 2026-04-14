@@ -1,0 +1,7 @@
+window_size: 8
+fastlio_topic: /robot/dlio/odom_node/odom
+px4_odom_topic: /mavros/local_position/odom
+vision_topic: /mavros/vision_pose/pose
+vision_frame_id: map
+stamp_source: input
+use_lidar_extrinsic: false

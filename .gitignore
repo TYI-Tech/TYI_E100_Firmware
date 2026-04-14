@@ -1,0 +1,8 @@
+logs/*
+!logs/.gitkeep
+workspace/build/
+workspace/devel/
+workspace/install/
+third_party/Livox-SDK2/build/
+**/__pycache__/
+**/*.pyc

@@ -1,0 +1,40 @@
+services:
+  base-stack:
+    build:
+      context: .
+      dockerfile: docker/runtime/Dockerfile
+    image: ${IMAGE_NAME:-alender-labs/uav-base-stack:noetic}
+    container_name: ${CONTAINER_NAME:-uav-base-stack}
+    privileged: true
+    network_mode: host
+    ipc: host
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    env_file:
+      - .env
+    environment:
+      DISPLAY: ${DISPLAY:-}
+      ROS_MASTER_PORT: ${ROS_MASTER_PORT:-11311}
+      FCU_URL: ${FCU_URL:-/dev/ttyTHS0:115200}
+      GCS_URL: ${GCS_URL:-udp://@192.168.110.227:14550}
+      MAVROS_TGT_SYSTEM: ${MAVROS_TGT_SYSTEM:-1}
+      MAVROS_TGT_COMPONENT: ${MAVROS_TGT_COMPONENT:-1}
+      MAVROS_FCU_PROTOCOL: ${MAVROS_FCU_PROTOCOL:-v2.0}
+      MAVROS_LOG_OUTPUT: ${MAVROS_LOG_OUTPUT:-screen}
+      MAVROS_RESPAWN: ${MAVROS_RESPAWN:-false}
+      LIVOX_BD_LIST: ${LIVOX_BD_LIST:-147MDLC40020242}
+      LIVOX_FRAME_ID: ${LIVOX_FRAME_ID:-livox_frame}
+      LIVOX_PUBLISH_FREQ: ${LIVOX_PUBLISH_FREQ:-20.0}
+      DLIO_NAMESPACE: ${DLIO_NAMESPACE:-robot}
+      STRICT_TOPIC_HEALTHCHECK: ${STRICT_TOPIC_HEALTHCHECK:-false}
+      TYI_TIMEBASE_MODE: ${TYI_TIMEBASE_MODE:-monotonic_raw_epoch}
+      TYI_TIMEBASE_FILE: ${TYI_TIMEBASE_FILE:-/tmp/tyi_timebase.env}
+      UAV_CONFIG_DIR: /opt/uav/configs
+      ROS_LOG_DIR: /opt/uav/logs/ros
+    volumes:
+      - ./configs:/opt/uav/configs:ro
+      - ./logs:/opt/uav/logs
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /dev:/dev
+      - /run/udev:/run/udev:ro
