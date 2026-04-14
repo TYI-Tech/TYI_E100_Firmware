@@ -72,10 +72,12 @@ bash ./scripts/enter.sh
 - [中文快速上手](docs/zh_CN/快速上手.md)
 - [中文文档索引](docs/zh_CN/README.md)
 - [中文版本说明](docs/zh_CN/版本说明.md)
+- [中文发布流程](docs/zh_CN/发布流程.md)
 - [文档总索引](docs/README.md)
 - [English quick start](docs/en_US/quick_start.md)
 - [English documentation](docs/en_US/README.md)
 - [English release notes](docs/en_US/release_notes.md)
+- [English release process](docs/en_US/release_process.md)
 - [更新记录](CHANGELOG.md)
 
 ## 仓库结构

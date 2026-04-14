@@ -6,6 +6,7 @@ Shortest bring-up path:
 2. [Machine Configuration](machine_configuration.md)
 3. [Operations](operations.md)
 4. [Release Notes](release_notes.md)
+5. [Release Process](release_process.md)
 
 ## Start Here
 
@@ -21,6 +22,7 @@ Shortest bring-up path:
 - [Operations](operations.md)
 - [FAQ](faq.md)
 - [Release Notes](release_notes.md)
+- [Release Process](release_process.md)
 
 ## Reference
 
