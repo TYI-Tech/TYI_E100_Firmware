@@ -1,6 +1,6 @@
-# TYI UAV Firmware
+# TYI E100 Firmware
 
-ROS1 product firmware repository for the UAV-NX base stack.
+ROS1 product firmware repository for `TYI E100`.
 This repository keeps the runtime source visible and provides the build and runtime entrypoints through `docker compose`.
 
 Chinese homepage: [README.md](README.md)

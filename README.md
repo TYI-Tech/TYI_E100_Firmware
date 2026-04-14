@@ -1,6 +1,6 @@
-# TYI UAV Firmware
+# TYI E100 固件
 
-面向产品发布的 UAV-NX ROS1 基础固件仓库。
+面向 `TYI E100` 产品发布的 ROS1 基础固件仓库。
 仓库内提供完整的可见源码与运行入口，可通过 `docker compose` 完成构建、部署与运行。
 
 English version: [README_EN.md](README_EN.md)
