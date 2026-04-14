@@ -12,6 +12,13 @@ apt-get update
 # Normalize vendor scripts in case the workspace was prepared on Windows.
 find /opt/uav/base_stack -type f \( -name '*.sh' -o -name '*.bash' -o -name '*.py' \) -exec sed -i 's/\r$//' {} +
 
+# livox_ros_driver2 keeps edition-specific manifests upstream. Normalize the ROS1
+# manifest so catkin/rosdep can discover the package during a clean build.
+LIVOX_DRIVER_DIR="/opt/uav/base_stack/workspace/src/livox_ros_driver2"
+if [[ -f "${LIVOX_DRIVER_DIR}/package_ROS1.xml" ]]; then
+  cp "${LIVOX_DRIVER_DIR}/package_ROS1.xml" "${LIVOX_DRIVER_DIR}/package.xml"
+fi
+
 rosdep init 2>/dev/null || true
 rosdep update --rosdistro noetic || echo "rosdep update failed, continuing with existing cache"
 
