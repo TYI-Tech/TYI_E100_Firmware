@@ -12,17 +12,27 @@ RUN printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https:
   && sed -i "s|http://ports.ubuntu.com/ubuntu-ports|${UBUNTU_PORTS_MIRROR}|g" /etc/apt/sources.list \
   && sed -i "s|http://snapshots.ros.org/noetic/final/ubuntu|${ROS_APT_MIRROR}|g" /etc/apt/sources.list.d/ros1-snapshots.list
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    cmake \
-    curl \
-    git \
-    libapr1-dev \
-    sudo \
-    python3-catkin-tools \
-    python3-rosdep \
-    python3-vcstool \
-    tmux \
+RUN bash -lc 'set -euo pipefail; \
+  for attempt in 1 2 3 4 5; do \
+    if apt-get update && apt-get install -y --no-install-recommends \
+      build-essential \
+      cmake \
+      curl \
+      git \
+      libapr1-dev \
+      sudo \
+      python3-catkin-tools \
+      python3-rosdep \
+      python3-vcstool \
+      tmux; then \
+      exit 0; \
+    fi; \
+    if [[ "${attempt}" -eq 5 ]]; then \
+      exit 1; \
+    fi; \
+    echo "apt bootstrap attempt ${attempt} failed, retrying..." >&2; \
+    sleep 5; \
+  done' \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/uav/base_stack
