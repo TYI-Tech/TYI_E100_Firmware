@@ -41,6 +41,15 @@ bash ./scripts/logs.sh
 bash ./scripts/enter.sh
 ```
 
+## Shortest Path
+
+For a first-time bring-up with the fewest decisions, use this order:
+
+1. clone the repository and run `bash ./scripts/check_host.sh`
+2. edit only [machine.env](machine.env)
+3. run `bash ./scripts/deploy.sh`
+4. confirm the runtime with `bash ./scripts/status.sh` and `bash ./scripts/logs.sh`
+
 Notes:
 
 - `deploy.sh` builds the runtime image directly from the checked-out source tree
@@ -62,9 +71,11 @@ Notes:
 
 - [Chinese quick start](docs/zh_CN/%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B.md)
 - [Chinese documentation](docs/zh_CN/README.md)
+- [Chinese release notes](docs/zh_CN/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E.md)
 - [Documentation index](docs/README.md)
 - [English quick start](docs/en_US/quick_start.md)
 - [English documentation](docs/en_US/README.md)
+- [English release notes](docs/en_US/release_notes.md)
 - [Changelog](CHANGELOG.md)
 
 ## Repository Layout

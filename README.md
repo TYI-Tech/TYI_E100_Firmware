@@ -41,6 +41,15 @@ bash ./scripts/logs.sh
 bash ./scripts/enter.sh
 ```
 
+## 最短路径
+
+如果只想尽快完成首次部署，按下面顺序操作即可：
+
+1. 拉取仓库并执行 `bash ./scripts/check_host.sh`
+2. 只修改 [machine.env](machine.env)
+3. 执行 `bash ./scripts/deploy.sh`
+4. 用 `bash ./scripts/status.sh` 和 `bash ./scripts/logs.sh` 确认运行状态
+
 说明：
 
 - `deploy.sh` 会直接基于当前仓库源码构建镜像，不依赖外部隐藏源码包
@@ -62,9 +71,11 @@ bash ./scripts/enter.sh
 
 - [中文快速上手](docs/zh_CN/快速上手.md)
 - [中文文档索引](docs/zh_CN/README.md)
+- [中文版本说明](docs/zh_CN/版本说明.md)
 - [文档总索引](docs/README.md)
 - [English quick start](docs/en_US/quick_start.md)
 - [English documentation](docs/en_US/README.md)
+- [English release notes](docs/en_US/release_notes.md)
 - [更新记录](CHANGELOG.md)
 
 ## 仓库结构
