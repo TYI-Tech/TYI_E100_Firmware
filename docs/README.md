@@ -1,4 +1,4 @@
-# Documentation
+# 文档总索引
 
-- [English](en_US/README.md)
-- [Chinese](zh_CN/README.md)
+- [中文文档](zh_CN/README.md)
+- [English Documentation](en_US/README.md)

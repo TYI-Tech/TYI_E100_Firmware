@@ -1,24 +1,24 @@
 # TYI UAV Firmware
 
-Customer-facing ROS1 firmware repository for the UAV-NX base stack.
-This repository keeps the runtime source visible and lets customers build and run the stack directly with `docker compose`.
+面向客户交付的 UAV-NX ROS1 基础固件仓库。
+客户可直接查看源码，并通过 `docker compose` 完成构建、部署与运行。
 
-Chinese version: [README_CN.md](README_CN.md)
+English version: [README_EN.md](README_EN.md)
 
-Current version: [VERSION](VERSION)
+当前版本：[VERSION](VERSION)
 
-## What This Repository Delivers
+## 本仓库提供的内容
 
-- source-visible deployment package for Ubuntu 20.04 + ROS1 Noetic
-- single-machine configuration entry through [machine.env](machine.env)
-- Docker-based bring-up for `livox_ros_driver2`, `dlio`, `fastlio_to_mavros`, `mavros`, `mavlink`, and `uav_base_bringup`
-- customer-only deployment and operation scripts
+- 面向 Ubuntu 20.04 + ROS1 Noetic 的可见源码部署包
+- 通过 [machine.env](machine.env) 收敛机型差异配置
+- 基于 Docker 的 `livox_ros_driver2`、`dlio`、`fastlio_to_mavros`、`mavros`、`mavlink`、`uav_base_bringup` 启动能力
+- 面向客户的部署与运维脚本
 
-## Runtime Pipeline
+## 运行链路
 
 `Livox MID360 -> DLIO -> fastlio_to_mavros -> MAVROS -> PX4`
 
-## Quick Start
+## 快速开始
 
 ```bash
 git clone git@github.com:TYI-Tech/TYI_UAV_Firmware.git
@@ -28,7 +28,7 @@ vim machine.env
 bash ./scripts/deploy.sh
 ```
 
-After deployment:
+部署完成后：
 
 ```bash
 bash ./scripts/status.sh
@@ -36,48 +36,48 @@ bash ./scripts/logs.sh
 bash ./scripts/enter.sh
 ```
 
-## What Customers Usually Edit
+## 客户通常需要修改的内容
 
 - [machine.env](machine.env)
-  airframe UART, MID360 serial/IP, and host NIC settings
+  机型 UART、MID360 序列号/IP、宿主机网卡设置
 - [configs/fastlio_to_mavros/bridge.yaml](configs/fastlio_to_mavros/bridge.yaml)
-  bridge topic and frame settings when downstream control integration is needed
+  后续如需接入控制桥接，可在此调整桥接话题与参考坐标系
 - [configs/dlio](configs/dlio)
-  DLIO runtime parameters
+  DLIO 运行参数
 - [configs/mavros](configs/mavros)
-  MAVROS plugin and FCU parameters
+  MAVROS 插件与 FCU 参数
 
-## Start Here
+## 建议先看
 
+- [中文快速上手](docs/zh_CN/快速上手.md)
+- [中文文档索引](docs/zh_CN/README.md)
+- [文档总索引](docs/README.md)
 - [English quick start](docs/en_US/quick_start.md)
-- [Chinese quick start](docs/zh_CN/快速上手.md)
-- [Documentation index](docs/README.md)
 - [English documentation](docs/en_US/README.md)
-- [Chinese documentation](docs/zh_CN/README.md)
-- [Changelog](CHANGELOG.md)
+- [更新记录](CHANGELOG.md)
 
-## Repository Layout
+## 仓库结构
 
 - `configs/`
-  runtime configuration mounted into the container
+  挂载进容器的运行配置
 - `docker/`
-  Docker build and runtime entrypoint files
+  Docker 构建与运行入口
 - `scripts/`
-  customer operation entrypoints
+  面向客户的运维脚本
 - `third_party/`
-  vendored third-party build dependencies
+  构建所需的内置第三方依赖
 - `workspace/src/`
-  ROS source packages used by the runtime
+  运行时使用的 ROS 源码包
 
-## Optional Bridge Package
+## 可选控制桥接包
 
-If the project later needs control bridge capabilities, install `TYI_Plugin_Ctl` separately:
+如果后续需要控制桥接能力，可单独安装 `TYI_Plugin_Ctl`：
 
 ```bash
 sudo apt install tyi-plugin-ctl
 ```
 
-## Scope
+## 仓库定位
 
-This repository is intended for customer deployment and field operation.
-Internal smoke tests and development-only debugging entrypoints are intentionally excluded.
+该仓库用于客户部署与现场运行。
+内部烟测入口和研发专用调试入口不会放在这里。
