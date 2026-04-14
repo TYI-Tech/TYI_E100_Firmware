@@ -44,13 +44,22 @@ for attempt in 1 2 3; do
   sleep 5
 done
 
-bash /opt/uav/base_stack/workspace/src/mavros/mavros/scripts/install_geographiclib_datasets.sh
+GEOGRAPHICLIB_GEOID="/usr/share/GeographicLib/geoids/egm96-5.pgm"
+GEOGRAPHICLIB_LOCAL_GEOID="/usr/local/share/GeographicLib/geoids/egm96-5.pgm"
+GEOGRAPHICLIB_BUNDLED_GEOID="/opt/uav/base_stack/docker/runtime/egm96-5.pgm"
 
-if command -v geographiclib-get-geoids >/dev/null 2>&1; then
-  geographiclib-get-geoids egm96-5
+if [[ -r "${GEOGRAPHICLIB_BUNDLED_GEOID}" ]]; then
+  install -d "$(dirname "${GEOGRAPHICLIB_GEOID}")"
+  install -m 0644 "${GEOGRAPHICLIB_BUNDLED_GEOID}" "${GEOGRAPHICLIB_GEOID}"
+elif command -v geographiclib-get-geoids >/dev/null 2>&1; then
+  geographiclib-get-geoids egm96-5 || true
 fi
 
-if [[ ! -r /usr/share/GeographicLib/geoids/egm96-5.pgm ]] && [[ ! -r /usr/local/share/GeographicLib/geoids/egm96-5.pgm ]]; then
+if [[ ! -r "${GEOGRAPHICLIB_GEOID}" ]] && [[ ! -r "${GEOGRAPHICLIB_LOCAL_GEOID}" ]]; then
+  bash /opt/uav/base_stack/workspace/src/mavros/mavros/scripts/install_geographiclib_datasets.sh
+fi
+
+if [[ ! -r "${GEOGRAPHICLIB_GEOID}" ]] && [[ ! -r "${GEOGRAPHICLIB_LOCAL_GEOID}" ]]; then
   echo "Required GeographicLib geoid dataset egm96-5.pgm is missing" >&2
   exit 1
 fi
