@@ -121,8 +121,3 @@ bash ./scripts/enter.sh
 ```bash
 sudo apt install tyi-plugin-ctl
 ```
-
-## 仓库定位
-
-该仓库用于产品固件发布、部署与现场运行。
-内部烟测入口和研发专用调试入口不会放在这里。

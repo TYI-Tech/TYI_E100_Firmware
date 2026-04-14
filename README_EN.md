@@ -120,8 +120,3 @@ If the project later needs control bridge capabilities, install `TYI_Plugin_Ctl`
 ```bash
 sudo apt install tyi-plugin-ctl
 ```
-
-## Scope
-
-This repository is intended for product firmware release, deployment, and field operation.
-Internal smoke tests and development-only debugging entrypoints are intentionally excluded.
