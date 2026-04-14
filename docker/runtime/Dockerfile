@@ -1,7 +1,7 @@
 FROM ros:noetic-ros-base-focal
 
-ARG UBUNTU_PORTS_MIRROR=http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports
-ARG ROS_APT_MIRROR=https://mirrors.ustc.edu.cn/ros/ubuntu
+ARG UBUNTU_PORTS_MIRROR=http://ports.ubuntu.com/ubuntu-ports
+ARG ROS_APT_MIRROR=http://snapshots.ros.org/noetic/final/ubuntu
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
