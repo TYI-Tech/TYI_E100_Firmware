@@ -31,6 +31,18 @@ docker login --username=hyzrichard crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr
 
 If registry access is not available on the target machine, use `bash ./scripts/deploy.sh --build` instead.
 
+## Is a stable image alias available?
+
+Yes.
+
+The ACR repository provides both explicit version tags and a long-lived stable alias, for example:
+
+```bash
+docker pull crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:stable
+```
+
+The repository default still uses an explicit version tag for clearer version tracking.
+
 ## Does the build still depend on downloading GeographicLib data online?
 
 Not by default.

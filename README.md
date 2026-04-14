@@ -49,6 +49,12 @@ docker login --username=hyzrichard crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr
 docker pull crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:0.1.2
 ```
 
+可选稳定标签：
+
+```bash
+docker pull crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:stable
+```
+
 部署完成后：
 
 ```bash

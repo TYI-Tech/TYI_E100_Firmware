@@ -49,6 +49,12 @@ docker login --username=hyzrichard crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr
 docker pull crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:0.1.2
 ```
 
+Optional stable alias:
+
+```bash
+docker pull crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:stable
+```
+
 After deployment:
 
 ```bash

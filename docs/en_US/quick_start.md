@@ -15,6 +15,12 @@ vim machine.env
 bash ./scripts/deploy.sh
 ```
 
+To pull the stable alias manually instead:
+
+```bash
+docker pull crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:stable
+```
+
 `deploy.sh` performs three actions in order:
 
 - applies machine-specific UART, MID360, and host NIC settings

@@ -8,6 +8,7 @@
 - Updated deployment and operation scripts to support both pull mode and build mode
 - Expanded Chinese and English documentation to explain ACR login, prebuilt image usage, and the fallback source-build workflow
 - Verified on `uav-nx` that the default image-pull path can authenticate to ACR and pull the published image successfully
+- Published aligned ACR image tags `0.1.2`, `latest`, and `stable`
 
 ## 0.1.1
 
