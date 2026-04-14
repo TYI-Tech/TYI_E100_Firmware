@@ -1,6 +1,6 @@
 # Quick Start
 
-This repository is intended for customer deployment on Ubuntu 20.04 with Docker and Docker Compose available.
+This repository is intended for product firmware deployment on Ubuntu 20.04 with Docker and Docker Compose available.
 The only file that normally needs editing is `machine.env`.
 
 ## First deployment
@@ -25,7 +25,7 @@ Expected result after `deploy.sh`:
 
 - the Docker image is built from the local source tree
 - the `base-stack` service is started in the background
-- customers can inspect the runtime through `status.sh`, `logs.sh`, and `enter.sh`
+- the runtime can be inspected through `status.sh`, `logs.sh`, and `enter.sh`
 
 ## After deployment
 

@@ -1,12 +1,12 @@
 # FAQ
 
-## Which file should customers edit first?
+## Which file should be edited first?
 
 `machine.env`
 
-This file is the main customer-edit surface for UART, MID360 serial/IP, and host Ethernet settings.
+This file is the main editable surface for UART, MID360 serial/IP, and host Ethernet settings.
 
-## Do customers need to edit `.env`?
+## Does `.env` need to be edited?
 
 Usually no.
 

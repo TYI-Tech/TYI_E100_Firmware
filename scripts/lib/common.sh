@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 log() {
-  printf '[base_stack_customer] %s\n' "$*"
+  printf '[tyi_uav_firmware] %s\n' "$*"
 }
 
 compose_cmd() {
@@ -18,7 +18,7 @@ compose_cmd() {
     return
   fi
 
-  printf '[base_stack_customer] ERROR: docker daemon is not accessible and sudo is unavailable.\n' >&2
+  printf '[tyi_uav_firmware] ERROR: docker daemon is not accessible and sudo is unavailable.\n' >&2
   exit 1
 }
 
@@ -33,7 +33,7 @@ run_compose() {
 require_file() {
   local path="$1"
   if [[ ! -f "${ROOT_DIR}/${path}" ]]; then
-    printf '[base_stack_customer] ERROR: missing required file %s\n' "${path}" >&2
+    printf '[tyi_uav_firmware] ERROR: missing required file %s\n' "${path}" >&2
     exit 1
   fi
 }

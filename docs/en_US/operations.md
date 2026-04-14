@@ -1,6 +1,6 @@
 # Operations
 
-These commands are the main customer-facing operation entrypoints.
+These commands are the main firmware operation entrypoints.
 
 ## Start or redeploy
 

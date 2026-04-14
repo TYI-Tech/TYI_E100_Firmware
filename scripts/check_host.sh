@@ -7,12 +7,12 @@ source "${SCRIPT_DIR}/lib/common.sh"
 cd "${ROOT_DIR}"
 
 if ! command -v docker >/dev/null 2>&1; then
-  printf '[base_stack_customer] ERROR: docker is not installed or not in PATH.\n' >&2
+  printf '[tyi_uav_firmware] ERROR: docker is not installed or not in PATH.\n' >&2
   exit 1
 fi
 
 if ! docker compose version >/dev/null 2>&1; then
-  printf '[base_stack_customer] ERROR: docker compose is unavailable.\n' >&2
+  printf '[tyi_uav_firmware] ERROR: docker compose is unavailable.\n' >&2
   exit 1
 fi
 

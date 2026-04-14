@@ -1,13 +1,13 @@
 # Repository Layout
 
-This customer directory is intentionally minimal and only exposes the parts required for deployment.
+This firmware repository is intentionally minimal and only exposes the parts required for deployment.
 
 - `configs/`
   runtime configuration mounted into the container
 - `docker/`
   Docker build and runtime entrypoint files
 - `scripts/`
-  customer operation entrypoints
+  firmware operation entrypoints
 - `third_party/`
   vendored third-party dependencies required by the build
 - `workspace/src/`

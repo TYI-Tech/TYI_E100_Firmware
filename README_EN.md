@@ -1,7 +1,7 @@
 # TYI UAV Firmware
 
-Customer-facing ROS1 firmware repository for the UAV-NX base stack.
-This repository keeps the runtime source visible and lets customers build and run the stack directly with `docker compose`.
+ROS1 product firmware repository for the UAV-NX base stack.
+This repository keeps the runtime source visible and provides the build and runtime entrypoints through `docker compose`.
 
 Chinese homepage: [README.md](README.md)
 
@@ -12,7 +12,7 @@ Current version: [VERSION](VERSION)
 - source-visible deployment package for Ubuntu 20.04 + ROS1 Noetic
 - single-machine configuration entry through [machine.env](machine.env)
 - Docker-based bring-up for `livox_ros_driver2`, `dlio`, `fastlio_to_mavros`, `mavros`, `mavlink`, and `uav_base_bringup`
-- customer-only deployment and operation scripts
+- product firmware deployment and operation scripts
 
 ## Runtime Pipeline
 
@@ -36,7 +36,7 @@ bash ./scripts/logs.sh
 bash ./scripts/enter.sh
 ```
 
-## What Customers Usually Edit
+## Common Configuration Entry Points
 
 - [machine.env](machine.env)
   airframe UART, MID360 serial/IP, and host NIC settings
@@ -63,7 +63,7 @@ bash ./scripts/enter.sh
 - `docker/`
   Docker build and runtime entrypoint files
 - `scripts/`
-  customer operation entrypoints
+  firmware operation entrypoints
 - `third_party/`
   vendored third-party build dependencies
 - `workspace/src/`
@@ -79,5 +79,5 @@ sudo apt install tyi-plugin-ctl
 
 ## Scope
 
-This repository is intended for customer deployment and field operation.
+This repository is intended for product firmware release, deployment, and field operation.
 Internal smoke tests and development-only debugging entrypoints are intentionally excluded.

@@ -1,7 +1,7 @@
 # TYI UAV Firmware
 
-面向客户交付的 UAV-NX ROS1 基础固件仓库。
-客户可直接查看源码，并通过 `docker compose` 完成构建、部署与运行。
+面向产品发布的 UAV-NX ROS1 基础固件仓库。
+仓库内提供完整的可见源码与运行入口，可通过 `docker compose` 完成构建、部署与运行。
 
 English version: [README_EN.md](README_EN.md)
 
@@ -12,7 +12,7 @@ English version: [README_EN.md](README_EN.md)
 - 面向 Ubuntu 20.04 + ROS1 Noetic 的可见源码部署包
 - 通过 [machine.env](machine.env) 收敛机型差异配置
 - 基于 Docker 的 `livox_ros_driver2`、`dlio`、`fastlio_to_mavros`、`mavros`、`mavlink`、`uav_base_bringup` 启动能力
-- 面向客户的部署与运维脚本
+- 面向产品固件发布的部署与运维脚本
 
 ## 运行链路
 
@@ -36,7 +36,7 @@ bash ./scripts/logs.sh
 bash ./scripts/enter.sh
 ```
 
-## 客户通常需要修改的内容
+## 常用配置入口
 
 - [machine.env](machine.env)
   机型 UART、MID360 序列号/IP、宿主机网卡设置
@@ -63,7 +63,7 @@ bash ./scripts/enter.sh
 - `docker/`
   Docker 构建与运行入口
 - `scripts/`
-  面向客户的运维脚本
+  固件运维脚本
 - `third_party/`
   构建所需的内置第三方依赖
 - `workspace/src/`
@@ -79,5 +79,5 @@ sudo apt install tyi-plugin-ctl
 
 ## 仓库定位
 
-该仓库用于客户部署与现场运行。
+该仓库用于产品固件发布、部署与现场运行。
 内部烟测入口和研发专用调试入口不会放在这里。

@@ -1,6 +1,6 @@
 # Machine Configuration
 
-The customer package is designed so that each airframe only needs one editable machine file:
+This firmware package is designed so that each airframe only needs one editable machine file:
 
 - `machine.env`
 
@@ -34,5 +34,5 @@ When `bash ./scripts/deploy.sh` runs, it calls `scripts/configure_machine.sh` an
 
 ## Notes
 
-- Keep the customer workflow focused on `machine.env`; avoid editing `.env` unless there is a deployment-specific need.
+- Keep the main firmware workflow focused on `machine.env`; avoid editing `.env` unless there is a deployment-specific need.
 - The LIO topic and bridge reference frame remain configurable through `configs/fastlio_to_mavros/bridge.yaml` if the stack later integrates `TYI_Plugin_Ctl`.
