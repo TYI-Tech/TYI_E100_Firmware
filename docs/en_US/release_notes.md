@@ -2,7 +2,7 @@
 
 ## 0.1.2
 
-This release adds dual deployment modes on top of `0.1.1`, so the product repository can now use either a prebuilt image or a local source build.
+This release adds dual deployment modes on top of `0.1.1`, and also publishes the aligned prebuilt image tag `0.1.2`.
 
 Main updates:
 
@@ -17,7 +17,7 @@ Operational conclusion:
 
 - users can now prefer the prebuilt image for faster deployment
 - users without registry access can still deploy from source with `--build`
-- the default published runtime image remains `0.1.1`, while the repository workflow advances to `0.1.2`
+- the default published runtime image is now `0.1.2`, aligned with the repository workflow version
 
 ## 0.1.1
 

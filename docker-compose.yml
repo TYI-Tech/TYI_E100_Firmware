@@ -1,6 +1,6 @@
 services:
   base-stack:
-    image: ${IMAGE_NAME:-crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:0.1.1}
+    image: ${IMAGE_NAME:-crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:0.1.2}
     container_name: ${CONTAINER_NAME:-uav-base-stack}
     privileged: true
     network_mode: host
