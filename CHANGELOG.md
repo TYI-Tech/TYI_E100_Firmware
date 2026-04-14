@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2
+
+- Added dual deployment modes for the product repository: prebuilt image pull by default, local source build with `--build`
+- Switched the default product image reference to the published ACR image `crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:0.1.1`
+- Added Compose override file `docker-compose.build.yml` for local source builds while keeping the default Compose path image-based
+- Updated deployment and operation scripts to support both pull mode and build mode
+- Expanded Chinese and English documentation to explain ACR login, prebuilt image usage, and the fallback source-build workflow
+- Verified on `uav-nx` that the default image-pull path can authenticate to ACR and pull the published image successfully
+
 ## 0.1.1
 
 - Verified clean source build on the `uav-nx` production board with `docker compose build --no-cache base-stack`

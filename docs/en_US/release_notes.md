@@ -1,5 +1,24 @@
 # Release Notes
 
+## 0.1.2
+
+This release adds dual deployment modes on top of `0.1.1`, so the product repository can now use either a prebuilt image or a local source build.
+
+Main updates:
+
+- switches the default deployment path to the published ACR image
+- keeps local source build support through `bash ./scripts/deploy.sh --build`
+- adds `docker-compose.build.yml` as the Compose override for source builds
+- updates deployment and operation scripts to support both pull mode and build mode
+- expands the bilingual documentation for ACR login, prebuilt image usage, and source-build fallback
+- verifies on `uav-nx` that the default image-pull path can authenticate to ACR and pull the published image successfully
+
+Operational conclusion:
+
+- users can now prefer the prebuilt image for faster deployment
+- users without registry access can still deploy from source with `--build`
+- the default published runtime image remains `0.1.1`, while the repository workflow advances to `0.1.2`
+
 ## 0.1.1
 
 This release closes the clean source-build workflow for the product firmware repository and has been validated on the `uav-nx` production board.
