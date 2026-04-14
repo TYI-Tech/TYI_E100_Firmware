@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="TYI Innovation" width="420">
+</p>
+
 # TYI E100 Firmware
 
 ROS1 product firmware repository for `TYI E100`.
@@ -21,8 +25,8 @@ Current version: [VERSION](VERSION)
 ## Quick Start
 
 ```bash
-git clone git@github.com:TYI-Tech/TYI_UAV_Firmware.git
-cd TYI_UAV_Firmware
+git clone git@github.com:TYI-Tech/TYI_E100_Firmware.git
+cd TYI_E100_Firmware
 bash ./scripts/check_host.sh
 vim machine.env
 bash ./scripts/deploy.sh

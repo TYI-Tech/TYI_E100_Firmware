@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="TYI Innovation" width="420">
+</p>
+
 # TYI E100 固件
 
 面向 `TYI E100` 产品发布的 ROS1 基础固件仓库。
@@ -21,8 +25,8 @@ English version: [README_EN.md](README_EN.md)
 ## 快速开始
 
 ```bash
-git clone git@github.com:TYI-Tech/TYI_UAV_Firmware.git
-cd TYI_UAV_Firmware
+git clone git@github.com:TYI-Tech/TYI_E100_Firmware.git
+cd TYI_E100_Firmware
 bash ./scripts/check_host.sh
 vim machine.env
 bash ./scripts/deploy.sh

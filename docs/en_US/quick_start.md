@@ -6,8 +6,8 @@ The only file that normally needs editing is `machine.env`.
 ## First deployment
 
 ```bash
-git clone git@github.com:TYI-Tech/TYI_UAV_Firmware.git
-cd TYI_UAV_Firmware
+git clone git@github.com:TYI-Tech/TYI_E100_Firmware.git
+cd TYI_E100_Firmware
 bash ./scripts/check_host.sh
 vim machine.env
 bash ./scripts/deploy.sh
