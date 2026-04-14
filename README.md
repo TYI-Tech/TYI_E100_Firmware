@@ -6,6 +6,7 @@
 
 面向 `TYI E100` 产品发布的 ROS1 基础固件仓库。
 仓库内提供完整的可见源码与运行入口，可通过 `docker compose` 完成构建、部署与运行。
+当前版本已经完成实机 fresh build 验证，支持从源码直接构建运行镜像。
 
 English version: [README_EN.md](README_EN.md)
 
@@ -39,6 +40,12 @@ bash ./scripts/status.sh
 bash ./scripts/logs.sh
 bash ./scripts/enter.sh
 ```
+
+说明：
+
+- `deploy.sh` 会直接基于当前仓库源码构建镜像，不依赖外部隐藏源码包
+- 构建阶段已内置 GeographicLib 关键 geoid 资源，并对基础 `apt` 安装增加重试处理
+- 机型差异默认通过 `machine.env` 收敛，不需要手动改动多个配置文件
 
 ## 常用配置入口
 

@@ -27,6 +27,12 @@ Expected result after `deploy.sh`:
 - the `base-stack` service is started in the background
 - the runtime can be inspected through `status.sh`, `logs.sh`, and `enter.sh`
 
+Additional notes:
+
+- the current release has been verified with a clean on-board source build
+- the required GeographicLib geoid file is bundled with the repository, so this resource is not fetched from SourceForge during build
+- the image bootstrap path retries base `apt` installation when transient network failures occur
+
 ## After deployment
 
 Use the following commands for routine operation:

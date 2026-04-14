@@ -14,6 +14,9 @@ bash ./scripts/deploy.sh
 bash ./scripts/build.sh
 ```
 
+`build.sh` rebuilds the firmware image from the current source tree.
+The current release has been validated with a clean source build and includes retry handling for base dependency installation.
+
 ## Start or stop the container
 
 ```bash

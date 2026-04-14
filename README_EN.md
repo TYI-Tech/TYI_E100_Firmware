@@ -6,6 +6,7 @@
 
 ROS1 product firmware repository for `TYI E100`.
 This repository keeps the runtime source visible and provides the build and runtime entrypoints through `docker compose`.
+The current release has been validated with a clean on-board source build and runtime bring-up.
 
 Chinese homepage: [README.md](README.md)
 
@@ -39,6 +40,12 @@ bash ./scripts/status.sh
 bash ./scripts/logs.sh
 bash ./scripts/enter.sh
 ```
+
+Notes:
+
+- `deploy.sh` builds the runtime image directly from the checked-out source tree
+- the build now includes the required GeographicLib geoid locally and retries the base `apt` bootstrap path
+- machine-specific differences are expected to stay within `machine.env`
 
 ## Common Configuration Entry Points
 
