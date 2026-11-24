@@ -6,6 +6,14 @@ export ROS_HOSTNAME="${ROS_HOSTNAME:-127.0.0.1}"
 source /opt/ros/noetic/setup.bash
 
 export DEBIAN_FRONTEND=noninteractive
+BUILD_JOBS="${FLIGHT_CORE_BUILD_JOBS:-1}"
+
+# rosdep treats an empty proxy variable as a configured proxy without a host.
+for proxy_var in HTTP_PROXY HTTPS_PROXY ALL_PROXY http_proxy https_proxy all_proxy; do
+  if [[ -z "${!proxy_var:-}" ]]; then
+    unset "${proxy_var}"
+  fi
+done
 
 apt-get update
 
@@ -67,13 +75,14 @@ fi
 cmake -S /opt/uav/base_stack/third_party/Livox-SDK2-mid360s \
       -B /opt/uav/base_stack/third_party/Livox-SDK2-mid360s/build \
       -DCMAKE_BUILD_TYPE=Release
-cmake --build /opt/uav/base_stack/third_party/Livox-SDK2-mid360s/build --parallel "$(nproc)"
+cmake --build /opt/uav/base_stack/third_party/Livox-SDK2-mid360s/build --parallel "${BUILD_JOBS}"
 cmake --install /opt/uav/base_stack/third_party/Livox-SDK2-mid360s/build
 
 ln -sf /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /opt/uav/base_stack/workspace/src/CMakeLists.txt
 
 cd /opt/uav/base_stack/workspace
 catkin_make_isolated \
+  -j"${BUILD_JOBS}" \
   --install \
   --cmake-args -DCMAKE_BUILD_TYPE=Release -DROS_EDITION=ROS1
 

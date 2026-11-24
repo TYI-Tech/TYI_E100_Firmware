@@ -5,6 +5,7 @@ services:
       dockerfile: docker/runtime/Dockerfile
       network: host
       args:
+        FLIGHT_CORE_BUILD_JOBS: ${FLIGHT_CORE_BUILD_JOBS:-1}
         UBUNTU_PORTS_MIRROR: ${UBUNTU_PORTS_MIRROR:-http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports}
         ROS_APT_MIRROR: ${ROS_APT_MIRROR:-http://snapshots.ros.org/noetic/final/ubuntu}
         HTTP_PROXY: ${HTTP_PROXY:-}
