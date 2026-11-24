@@ -16,8 +16,13 @@ if ! docker compose version >/dev/null 2>&1; then
   exit 1
 fi
 
-require_file ".env"
+require_file ".env.example"
+require_file "machine.env.example"
+require_file "configs/livox/MID360_config.example.json"
+
+if [[ ! -e machine.env ]]; then
+  cp -n machine.env.example machine.env
+fi
 require_file "machine.env"
-require_file "configs/livox/MID360_config.json"
 
 log "host check passed"

@@ -1,6 +1,6 @@
 services:
   flight-core:
-    image: ${IMAGE_NAME:-tyi/e100-flight-core:orin2-20261125}
+    image: ${IMAGE_NAME:-tyi/e100-firmware:0.1.3}
     container_name: ${FLIGHT_CORE_CONTAINER_NAME:-flight-core}
     privileged: true
     network_mode: host
