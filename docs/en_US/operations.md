@@ -10,7 +10,7 @@ bash ./scripts/deploy.sh --build
 ```
 
 - `deploy.sh`
-  pulls the prebuilt image and starts it
+  downloads and verifies the release image and starts it
 - `deploy.sh --build`
   builds from the local source tree and then starts the runtime
 
@@ -22,7 +22,6 @@ bash ./scripts/build.sh
 
 `build.sh` rebuilds the firmware image from the current source tree.
 It uses the `docker-compose.build.yml` override for local source builds.
-The current release has been validated with a clean source build and includes retry handling for base dependency installation.
 
 ## Start or stop the container
 
@@ -40,5 +39,5 @@ bash ./scripts/logs.sh
 bash ./scripts/enter.sh
 ```
 
-`enter.sh` opens a shell inside the `base-stack` container.
+`enter.sh` opens a shell inside the `flight-core` container.
 The runtime user inside the container is `uav`, which avoids routine root execution during operation.

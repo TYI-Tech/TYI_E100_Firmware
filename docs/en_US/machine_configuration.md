@@ -21,16 +21,17 @@ This firmware package is designed so that each airframe only needs one editable 
 - `HOST_ETH_IP`
   host IP used for MID360 communication, based on the deployment network plan, for example `192.168.1.50` or `192.168.1.5`
 
-## What `configure_machine.sh` updates
+- `GCS_URL` is the MAVROS connection URL for the actual ground station.
+- `MAVROS_TGT_SYSTEM` is the target flight controller MAVLink system ID (1–255).
 
-When `bash ./scripts/deploy.sh` runs, it calls `scripts/configure_machine.sh` and updates:
+## Generated settings and LiDAR interface
 
-- `.env`
-  writes `FCU_URL` and `LIVOX_BD_LIST`
-- `configs/livox/MID360_config.json`
-  writes host IP, MID360 IP, and related UDP ports
-- host Ethernet configuration
-  applies the configured IP to the Ethernet interface connected to MID360
+Deployment generates or updates `.env` and `configs/livox/MID360_config.json`. Deployment preserves host networking. If the dedicated LiDAR interface needs its address set, verify that `HOST_ETH_IFACE` is the LiDAR interface. The second command reconfigures that interface.
+
+```bash
+bash ./scripts/configure_machine.sh --dry-run
+sudo bash ./scripts/configure_machine.sh --skip-restart
+```
 
 ## Notes
 

@@ -1,5 +1,13 @@
 # Release Notes
 
+## 0.1.3
+
+Default deployment verifies the Linux ARM64 archive from this release. The odometry pipeline uses FAST-LIO2 and a high-rate EKF. This in-place revision fixes the host acceptance command and checks required machine settings before downloading or building.
+
+For an upgrade from 0.1.2, keep the old checkout, local image and device settings. Clone v0.1.3 in another directory and migrate settings into the new template, including `GCS_URL` and `MAVROS_TGT_SYSTEM`. Run `bash ./scripts/down.sh` in the old directory, then follow the [quick start](quick_start.md). To roll back, stop the new deployment with the same down command, return to the old directory, run `docker compose up -d --no-build --pull never` with the retained image and validate using the old procedure.
+
+For an existing v0.1.3 install, clone the current tag in a fresh directory and transfer the device’s `machine.env` and site-specific settings. Keep the original directory for recovery. If the official v0.1.3 image is already loaded, stop the old deployment, then run `bash ./deploy.sh --local` and `bash ./validate_stack.sh` in the new directory.
+
 ## 0.1.2
 
 This release adds dual deployment modes on top of `0.1.1`, and also publishes the aligned prebuilt image tag `0.1.2`.

@@ -25,4 +25,5 @@ if [[ ! -e machine.env ]]; then
 fi
 require_file "machine.env"
 
+docker compose -f docker-compose.yml config --quiet
 log "host check passed"

@@ -18,70 +18,39 @@ Current version: [VERSION](VERSION)
 ## What This Repository Delivers
 
 - source-visible deployment package for Ubuntu 20.04 + ROS1 Noetic
-- single-machine configuration entry through [machine.env](machine.env)
-- Docker-based bring-up for `livox_ros_driver2`, `dlio`, `fastlio_to_mavros`, `mavros`, `mavlink`, and `uav_base_bringup`
+- single-machine configuration entry through [machine.env.example](machine.env.example)
+- Docker-based bring-up for `livox_ros_driver2`, `fast_lio`, `fastlio_to_mavros`, `mavros`, `mavlink`, and `uav_base_bringup`
 - product firmware deployment and operation scripts
 
 ## Runtime Pipeline
 
-`Livox MID360 -> DLIO -> fastlio_to_mavros -> MAVROS -> PX4`
+`Livox MID360 -> FAST-LIO2 -> high_rate_odom_ekf -> fastlio_to_mavros -> MAVROS -> PX4`
 
 ## Quick Start
 
 ```bash
-git clone git@github.com:TYI-Tech/TYI_E100_Firmware.git
+git clone --branch v0.1.3 https://github.com/TYI-Tech/TYI_E100_Firmware.git
 cd TYI_E100_Firmware
 bash ./scripts/check_host.sh
-vim machine.env
-bash ./scripts/deploy.sh
 ```
 
-For a local source build instead:
+Fill in the serial port, LiDAR serial and IP settings, ground station address and MAVLink system ID in `machine.env`. Use `ip -br -4 addr` to confirm the LiDAR interface has the configured host IP.
 
 ```bash
-bash ./scripts/deploy.sh --build
+bash ./deploy.sh
+bash ./validate_stack.sh
 ```
 
-To log in and pull the prebuilt image manually:
-
-```bash
-docker login --username=hyzrichard crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com
-docker pull crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:0.1.2
-```
-
-After deployment:
-
-```bash
-bash ./scripts/status.sh
-bash ./scripts/logs.sh
-bash ./scripts/enter.sh
-```
-
-## Shortest Path
-
-For a first-time bring-up with the fewest decisions, use this order:
-
-1. clone the repository and run `bash ./scripts/check_host.sh`
-2. edit only [machine.env](machine.env)
-3. run `bash ./scripts/deploy.sh`
-4. confirm the runtime with `bash ./scripts/status.sh` and `bash ./scripts/logs.sh`
-
-Notes:
-
-- `deploy.sh` pulls the prebuilt ACR image and starts it by default
-- `deploy.sh --build` switches to local source-build mode
-- if the machine does not have registry access, use `--build`
-- the build now includes the required GeographicLib geoid locally and retries the base `apt` bootstrap path
-- machine-specific differences are expected to stay within `machine.env`
+The default install verifies the SHA-256 of the Linux ARM64 archive from GitHub Releases. Use `bash ./deploy.sh --local` with an already loaded image or `bash ./deploy.sh --build` to build the checkout.
 
 ## Common Configuration Entry Points
 
-- [machine.env](machine.env)
+- [machine.env.example](machine.env.example)
   airframe UART, MID360 serial/IP, and host NIC settings
 - [configs/fastlio_to_mavros/bridge.yaml](configs/fastlio_to_mavros/bridge.yaml)
   bridge topic and frame settings when downstream control integration is needed
-- [configs/dlio](configs/dlio)
-  DLIO runtime parameters
+- [configs/fastlio2](configs/fastlio2)
+  FAST-LIO2 runtime parameters
 - [configs/mavros](configs/mavros)
   MAVROS plugin and FCU parameters
 
@@ -121,3 +90,5 @@ sudo apt install tyi-plugin-ctl
 
 This repository is intended for product firmware release, deployment, and field operation.
 Internal smoke tests and development-only debugging entrypoints are intentionally excluded.
+
+See the [Licensing](LICENSING.md) index.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+- Distribute the Linux ARM64 image as a checksummed GitHub Release archive and run the FAST-LIO2 and high-rate EKF stack in `flight-core`.
+- Run the host acceptance check through Bash. Validate required machine settings before downloading the archive or building locally.
+- Align English and Chinese deployment, upgrade and recovery instructions with the shipped scripts. See [component licensing](LICENSING.md).
+
 ## 0.1.2
 
 - Added dual deployment modes for the product repository: prebuilt image pull by default, local source build with `--build`

@@ -11,8 +11,15 @@ case "${1:---pull}" in
 esac
 
 require_file machine.env
+bash ./scripts/configure_machine.sh --dry-run --skip-network --skip-restart >/dev/null
 case "${mode}" in
   --pull)
+    for tool in curl zstd sha256sum; do
+      if ! command -v "${tool}" >/dev/null; then
+        printf 'Missing %s for GitHub Release installation. Install it before deploying.\n' "${tool}" >&2
+        exit 1
+      fi
+    done
     tag="v$(<VERSION)"
     archive="tyi-e100-firmware-${tag}-linux-arm64.tar.zst"
     checksum="${archive}.sha256"

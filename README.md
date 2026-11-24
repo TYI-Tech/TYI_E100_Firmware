@@ -18,71 +18,39 @@ English version: [README_EN.md](README_EN.md)
 ## 本仓库提供的内容
 
 - 面向 Ubuntu 20.04 + ROS1 Noetic 的可见源码部署包
-- 通过 [machine.env](machine.env) 收敛机型差异配置
-- 基于 Docker 的 `livox_ros_driver2`、`dlio`、`fastlio_to_mavros`、`mavros`、`mavlink`、`uav_base_bringup` 启动能力
+- 通过 [machine.env.example](machine.env.example) 收敛机型差异配置
+- 基于 Docker 的 `livox_ros_driver2`、`fast_lio`、`fastlio_to_mavros`、`mavros`、`mavlink`、`uav_base_bringup` 启动能力
 - 面向产品固件发布的部署与运维脚本
 
 ## 运行链路
 
-`Livox MID360 -> DLIO -> fastlio_to_mavros -> MAVROS -> PX4`
+`Livox MID360 -> FAST-LIO2 -> high_rate_odom_ekf -> fastlio_to_mavros -> MAVROS -> PX4`
 
 ## 快速开始
 
 ```bash
-git clone git@github.com:TYI-Tech/TYI_E100_Firmware.git
+git clone --branch v0.1.3 https://github.com/TYI-Tech/TYI_E100_Firmware.git
 cd TYI_E100_Firmware
 bash ./scripts/check_host.sh
-vim machine.env
-bash ./scripts/deploy.sh
 ```
 
-如需改为本地源码构建：
+按实机填写 `machine.env` 的串口、雷达序列号、雷达与主机 IP、地面站地址和 MAVLink 系统 ID。用 `ip -br -4 addr` 确认雷达网卡已有配置的主机 IP。
 
 ```bash
-bash ./scripts/deploy.sh --build
+bash ./deploy.sh
+bash ./validate_stack.sh
 ```
 
-如需手动登录并预拉取镜像：
-
-```bash
-docker login --username=hyzrichard crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com
-docker pull crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:0.1.2
-```
-
-部署完成后：
-
-```bash
-bash ./scripts/status.sh
-bash ./scripts/logs.sh
-bash ./scripts/enter.sh
-```
-
-## 最短路径
-
-如果只想尽快完成首次部署，按下面顺序操作即可：
-
-1. 拉取仓库并执行 `bash ./scripts/check_host.sh`
-2. 只修改 [machine.env](machine.env)
-3. 执行 `bash ./scripts/deploy.sh`
-4. 用 `bash ./scripts/status.sh` 和 `bash ./scripts/logs.sh` 确认运行状态
-
-说明：
-
-- `deploy.sh` 会直接基于当前仓库源码构建镜像，不依赖外部隐藏源码包
-- `deploy.sh` 默认直接拉取 ACR 预编译镜像并启动
-- `deploy.sh --build` 会切换到本地源码构建模式
-- 如当前机器没有镜像仓库访问权限，可直接使用 `--build`
-- 构建阶段已内置 GeographicLib 关键 geoid 资源，并对基础 `apt` 安装增加重试处理
-- 机型差异默认通过 `machine.env` 收敛，不需要手动改动多个配置文件
+默认从 GitHub Release 下载 Linux ARM64 镜像包并验证 SHA-256。离线板卡已载入该镜像时使用 `bash ./deploy.sh --local`，从源码构建时使用 `bash ./deploy.sh --build`。
 
 ## 常用配置入口
 
-- [machine.env](machine.env)
+- [machine.env.example](machine.env.example)
   机型 UART、MID360 序列号/IP、宿主机网卡设置
 - [configs/fastlio_to_mavros/bridge.yaml](configs/fastlio_to_mavros/bridge.yaml)
   后续如需接入控制桥接，可在此调整桥接话题与参考坐标系
-- [configs/dlio](configs/dlio)
-  DLIO 运行参数
+- [configs/fastlio2](configs/fastlio2)
+  FAST-LIO2 运行参数
 - [configs/mavros](configs/mavros)
   MAVROS 插件与 FCU 参数
 
@@ -122,3 +90,5 @@ sudo apt install tyi-plugin-ctl
 
 该仓库用于产品固件发布、部署与现场运行。
 内部烟测入口和研发专用调试入口不会放在这里。
+
+各组件的许可证见 [Licensing](LICENSING.md)。
