@@ -1,5 +1,5 @@
 window_size: 8
-publish_rate_hz: 200.0
+publish_rate_hz: 50.0
 fastlio_queue_size: 400
 vision_queue_size: 200
 fastlio_topic: /tyi/e100/ekf_odom

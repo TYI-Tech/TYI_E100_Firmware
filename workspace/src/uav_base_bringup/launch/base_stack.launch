@@ -1,13 +1,13 @@
 <launch>
   <arg name="config_root" default="$(optenv UAV_CONFIG_DIR /opt/uav/configs)" />
 
-  <arg name="livox_bd_list" default="$(optenv LIVOX_BD_LIST 147MDLC40020242)" />
+  <arg name="livox_bd_list" default="$(optenv LIVOX_BD_LIST UNCONFIGURED)" />
   <arg name="livox_frame_id" default="$(optenv LIVOX_FRAME_ID livox_frame)" />
   <arg name="livox_publish_freq" default="$(optenv LIVOX_PUBLISH_FREQ 20.0)" />
 
-  <arg name="fcu_url" default="$(optenv FCU_URL /dev/ttyTHS0:115200)" />
-  <arg name="gcs_url" default="$(optenv GCS_URL udp://@192.168.110.227:14550)" />
-  <arg name="tgt_system" default="$(optenv MAVROS_TGT_SYSTEM 1)" />
+  <arg name="fcu_url" default="$(optenv FCU_URL UNCONFIGURED)" />
+  <arg name="gcs_url" default="$(optenv GCS_URL UNCONFIGURED)" />
+  <arg name="tgt_system" default="$(optenv MAVROS_TGT_SYSTEM UNCONFIGURED)" />
   <arg name="tgt_component" default="$(optenv MAVROS_TGT_COMPONENT 1)" />
   <arg name="fcu_protocol" default="$(optenv MAVROS_FCU_PROTOCOL v2.0)" />
   <arg name="log_output" default="$(optenv MAVROS_LOG_OUTPUT screen)" />
@@ -20,6 +20,7 @@
   <node name="livox_lidar_publisher2"
         pkg="livox_ros_driver2"
         type="livox_ros_driver2_node"
+        launch-prefix="/opt/uav/base_stack/workspace/src/uav_base_bringup/scripts/wait_livox_route.py"
         output="screen"
         required="true"
         args="$(arg livox_bd_list)">
@@ -27,13 +28,10 @@
     <param name="multi_topic" value="0" />
     <param name="data_src" value="0" />
     <param name="publish_freq" type="double" value="$(arg livox_publish_freq)" />
-    <param name="output_data_type" value="0" />
     <param name="cmdline_str" type="string" value="$(arg livox_bd_list)" />
     <param name="cmdline_file_path" type="string" value="livox_test.lvx" />
     <param name="user_config_path" type="string" value="$(arg config_root)/livox/MID360_config.json" />
     <param name="frame_id" type="string" value="$(arg livox_frame_id)" />
-    <param name="enable_lidar_bag" type="bool" value="true" />
-    <param name="enable_imu_bag" type="bool" value="true" />
   </node>
 
   <rosparam file="$(arg config_root)/fastlio2/mid360.yaml" command="load" />
@@ -62,6 +60,7 @@
         output="screen">
     <param name="imu_topic" type="string" value="$(arg high_rate_odom_ekf_imu_topic)" />
     <param name="odom_topic" type="string" value="$(arg high_rate_odom_ekf_odom_topic)" />
+    <param name="lio_input_health_topic" type="string" value="$(arg high_rate_odom_ekf_odom_topic)/input_healthy" />
     <param name="output_topic" type="string" value="$(arg high_rate_odom_ekf_output_topic)" />
     <param name="output_frame_id" type="string" value="robot/odom" />
     <param name="output_child_frame_id" type="string" value="base_link" />
@@ -107,4 +106,14 @@
     <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
     <arg name="respawn_mavros" value="$(arg respawn_mavros)" />
   </include>
+
+  <node pkg="uav_base_bringup"
+        type="px4_esc_rpm.py"
+        name="px4_esc_rpm"
+        respawn="true"
+        respawn_delay="2"
+        output="screen">
+    <param name="target_system" type="int" value="$(arg tgt_system)" />
+    <param name="target_component" type="int" value="$(arg tgt_component)" />
+  </node>
 </launch>

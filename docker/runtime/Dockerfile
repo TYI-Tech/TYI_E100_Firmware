@@ -1,4 +1,4 @@
-FROM ros:noetic-ros-base-focal
+FROM ros:noetic-ros-base-focal@sha256:c84e573d2f2beb679ea5b03015eb2876e9962657c23d0073e4ae9d7ba41c4700
 
 ARG UBUNTU_PORTS_MIRROR=http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports
 ARG ROS_APT_MIRROR=http://snapshots.ros.org/noetic/final/ubuntu
@@ -75,9 +75,6 @@ RUN groupadd -g 1000 uav \
   && if [ -z "${i2c_group}" ]; then groupadd -g 113 i2c; i2c_group=i2c; fi \
   && if [ -z "${gpio_group}" ]; then groupadd -g 999 gpio; gpio_group=gpio; fi \
   && usermod -aG sudo,"${dialout_group}","${video_group}","${plugdev_group}","${render_group}","${i2c_group}","${gpio_group}" uav \
-  && echo 'uav:tyitech' | chpasswd \
-  && printf 'uav ALL=(ALL) ALL\n' >/etc/sudoers.d/90-uav \
-  && chmod 0440 /etc/sudoers.d/90-uav \
   && chown -R uav:uav /opt/uav /home/uav \
   && printf '%s\n' \
       'export ROS_MASTER_URI="${ROS_MASTER_URI:-http://127.0.0.1:${ROS_MASTER_PORT:-11311}}"' \

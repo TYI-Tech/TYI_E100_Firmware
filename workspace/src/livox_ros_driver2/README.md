@@ -428,26 +428,19 @@ For more infomation about the HAP config, please refer to:
     <arg name="multi_topic" default="1"/>
     <arg name="data_src" default="0"/>
     <arg name="publish_freq" default="10.0"/>
-    <arg name="output_type" default="0"/>
     <arg name="rviz_enable" default="true"/>
-    <arg name="rosbag_enable" default="false"/>
     <arg name="cmdline_arg" default="$(arg bd_list)"/>
     <arg name="msg_frame_id" default="livox_frame"/>
-    <arg name="lidar_bag" default="true"/>
-    <arg name="imu_bag" default="true"/>
     <!--user configure parameters for ros end--> 
 
     <param name="xfer_format" value="$(arg xfer_format)"/>
     <param name="multi_topic" value="$(arg multi_topic)"/>
     <param name="data_src" value="$(arg data_src)"/>
     <param name="publish_freq" type="double" value="$(arg publish_freq)"/>
-    <param name="output_data_type" value="$(arg output_type)"/>
     <param name="cmdline_str" type="string" value="$(arg bd_list)"/>
     <param name="cmdline_file_path" type="string" value="$(arg lvx_file_path)"/>
     <param name="user_config_path" type="string" value="$(find livox_ros_driver2)/config/MID360_config1.json"/> # Mid360 MID360_config1 name
     <param name="frame_id" type="string" value="$(arg msg_frame_id)"/>
-    <param name="enable_lidar_bag" type="bool" value="$(arg lidar_bag)"/>
-    <param name="enable_imu_bag" type="bool" value="$(arg imu_bag)"/>
 
     <node name="livox_lidar_publisher1" pkg="livox_ros_driver2"
           type="livox_ros_driver2_node" required="true"
@@ -458,10 +451,6 @@ For more infomation about the HAP config, please refer to:
                 args="-d $(find livox_ros_driver2)/config/display_point_cloud_ROS1.rviz"/>
     </group>
 
-    <group if="$(arg rosbag_enable)">
-        <node pkg="rosbag" type="record" name="record" output="screen"
-                args="-a"/>
-    </group>
 
 </launch>
 ```
@@ -475,26 +464,19 @@ For more infomation about the HAP config, please refer to:
     <arg name="multi_topic" default="1"/>
     <arg name="data_src" default="0"/>
     <arg name="publish_freq" default="10.0"/>
-    <arg name="output_type" default="0"/>
     <arg name="rviz_enable" default="true"/>
-    <arg name="rosbag_enable" default="false"/>
     <arg name="cmdline_arg" default="$(arg bd_list)"/>
     <arg name="msg_frame_id" default="livox_frame"/>
-    <arg name="lidar_bag" default="true"/>
-    <arg name="imu_bag" default="true"/>
     <!--user configure parameters for ros end--> 
 
     <param name="xfer_format" value="$(arg xfer_format)"/>
     <param name="multi_topic" value="$(arg multi_topic)"/>
     <param name="data_src" value="$(arg data_src)"/>
     <param name="publish_freq" type="double" value="$(arg publish_freq)"/>
-    <param name="output_data_type" value="$(arg output_type)"/>
     <param name="cmdline_str" type="string" value="$(arg bd_list)"/>
     <param name="cmdline_file_path" type="string" value="$(arg lvx_file_path)"/>
     <param name="user_config_path" type="string" value="$(find livox_ros_driver2)/config/MID360_config2.json"/> # Mid360 MID360_config2 name
     <param name="frame_id" type="string" value="$(arg msg_frame_id)"/>
-    <param name="enable_lidar_bag" type="bool" value="$(arg lidar_bag)"/>
-    <param name="enable_imu_bag" type="bool" value="$(arg imu_bag)"/>
 
     <node name="livox_lidar_publisher2" pkg="livox_ros_driver2"
           type="livox_ros_driver2_node" required="true"
@@ -505,10 +487,6 @@ For more infomation about the HAP config, please refer to:
                 args="-d $(find livox_ros_driver2)/config/display_point_cloud_ROS1.rviz"/>
     </group>
 
-    <group if="$(arg rosbag_enable)">
-        <node pkg="rosbag" type="record" name="record" output="screen"
-                args="-a"/>
-    </group>
 
 </launch>
 

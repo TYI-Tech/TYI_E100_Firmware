@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="${ROOT_DIR}/.env"
 MACHINE_ENV_FILE="${ROOT_DIR}/machine.env"
 LIVOX_CONFIG_FILE="${ROOT_DIR}/configs/livox/MID360_config.json"
+LIVOX_TEMPLATE="${ROOT_DIR}/configs/livox/MID360_config.example.json"
 BACKUP_DIR="${ROOT_DIR}/logs/config_backups"
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 
@@ -70,14 +71,6 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-if [[ ! -f "${ENV_FILE}" ]]; then
-  die "Missing ${ENV_FILE}. Run from firmware/base_stack_noetic and make sure .env exists."
-fi
-
-if [[ ! -f "${LIVOX_CONFIG_FILE}" ]]; then
-  die "Missing ${LIVOX_CONFIG_FILE}."
-fi
-
 if [[ "${DRY_RUN}" != "true" && "${EUID}" -ne 0 ]]; then
   die "Run this script with sudo so it can update network configuration and restart docker."
 fi
@@ -85,14 +78,14 @@ fi
 load_machine_env
 
 FCU_DEVICE="${FCU_DEVICE:-/dev/ttyTHS0}"
-FCU_BAUD="${FCU_BAUD:-115200}"
+FCU_BAUD="${FCU_BAUD:-921600}"
 
-MID360_BD_LIST="${MID360_BD_LIST:-147MDLC40020242}"
-MID360_SN_SUFFIX="${MID360_SN_SUFFIX:-42}"
+MID360_BD_LIST="${MID360_BD_LIST:-UNCONFIGURED}"
+MID360_SN_SUFFIX="${MID360_SN_SUFFIX:-}"
 MID360_LIDAR_IP="${MID360_LIDAR_IP:-}"
 
 HOST_ETH_IFACE="${HOST_ETH_IFACE:-eth0}"
-HOST_ETH_IP="${HOST_ETH_IP:-192.168.1.50}"
+HOST_ETH_IP="${HOST_ETH_IP:-}"
 HOST_ETH_PREFIX="${HOST_ETH_PREFIX:-24}"
 HOST_ETH_GATEWAY="${HOST_ETH_GATEWAY:-}"
 
@@ -125,6 +118,13 @@ derive_lidar_ip() {
   printf '192.168.1.%d' "${octet}"
 }
 
+[[ "${MID360_BD_LIST}" != UNCONFIGURED ]] || die "Set MID360_BD_LIST in machine.env."
+[[ -n "${HOST_ETH_IP}" ]] || die "Set HOST_ETH_IP in machine.env."
+[[ -n "${GCS_URL:-}" && "${GCS_URL}" != UNCONFIGURED ]] || die "Set GCS_URL in machine.env."
+[[ "${MAVROS_TGT_SYSTEM:-}" =~ ^[1-9][0-9]{0,2}$ ]] &&
+  (( 10#${MAVROS_TGT_SYSTEM} >= 1 && 10#${MAVROS_TGT_SYSTEM} <= 255 )) ||
+  die "Set MAVROS_TGT_SYSTEM to 1–255 in machine.env."
+
 LIDAR_IP="${MID360_LIDAR_IP:-$(derive_lidar_ip "${MID360_SN_SUFFIX}")}"
 FCU_URL="${FCU_DEVICE}:${FCU_BAUD}"
 
@@ -139,15 +139,16 @@ ensure_runtime_dirs() {
   local runtime_owner_gid="${SUDO_GID:-$(id -g)}"
 
   log "Preparing runtime directories under ${ROOT_DIR}/logs"
-  mkdir -p "${ROOT_DIR}/logs/ros" "${BACKUP_DIR}"
+  mkdir -p "${ROOT_DIR}/logs/ros" "${ROOT_DIR}/state/timebase" "${BACKUP_DIR}"
+  chown 1000:1000 "${ROOT_DIR}/logs/ros" "${ROOT_DIR}/state/timebase"
 
-  chown -R "${runtime_owner_uid}:${runtime_owner_gid}" "${ROOT_DIR}/logs"
+  chown "${runtime_owner_uid}:${runtime_owner_gid}" "${ROOT_DIR}/logs" "${BACKUP_DIR}"
   chmod 0775 "${ROOT_DIR}/logs" "${ROOT_DIR}/logs/ros" "${BACKUP_DIR}"
 }
 
 configure_env_file() {
   log "Updating ${ENV_FILE}"
-  python3 - "${ENV_FILE}" "${FCU_URL}" "${MID360_BD_LIST}" <<'PY'
+  python3 - "${ENV_FILE}" "${FCU_URL}" "${MID360_BD_LIST}" "${GCS_URL}" "${MAVROS_TGT_SYSTEM}" <<'PY'
 from pathlib import Path
 import sys
 
@@ -158,6 +159,8 @@ bd_list = sys.argv[3]
 required = {
     "FCU_URL": fcu_url,
     "LIVOX_BD_LIST": bd_list,
+    "GCS_URL": sys.argv[4],
+    "MAVROS_TGT_SYSTEM": sys.argv[5],
 }
 
 lines = env_path.read_text().splitlines()
@@ -222,7 +225,7 @@ import sys
 
 data = json.loads(Path(config_path).read_text())
 
-mid360 = data.setdefault("MID360", {})
+mid360 = data["Mid360s"] if "Mid360s" in data else data["MID360"]
 lidar_net_info = mid360.setdefault("lidar_net_info", {})
 host_net_info = mid360.setdefault("host_net_info", {})
 lidar_configs = data.setdefault("lidar_configs", [])
@@ -299,7 +302,7 @@ restart_stack() {
   log "Restarting docker compose stack"
   (
     cd "${ROOT_DIR}"
-    docker compose up -d --force-recreate
+    docker compose up -d --pull never --force-recreate flight-core
   )
 }
 
@@ -323,8 +326,17 @@ if [[ "${DRY_RUN}" == "true" ]]; then
   exit 0
 fi
 
-backup_file "${ENV_FILE}"
-backup_file "${LIVOX_CONFIG_FILE}"
+if [[ -f "${ENV_FILE}" ]]; then
+  backup_file "${ENV_FILE}"
+else
+  install -o "${SUDO_UID:-$(id -u)}" -g "${SUDO_GID:-$(id -g)}" -m 0640 "${ROOT_DIR}/.env.example" "${ENV_FILE}"
+fi
+
+if [[ -f "${LIVOX_CONFIG_FILE}" ]]; then
+  backup_file "${LIVOX_CONFIG_FILE}"
+else
+  install -o "${SUDO_UID:-$(id -u)}" -g "${SUDO_GID:-$(id -g)}" -m 0644 "${LIVOX_TEMPLATE}" "${LIVOX_CONFIG_FILE}"
+fi
 
 configure_env_file
 configure_livox_json

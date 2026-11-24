@@ -1,77 +1,121 @@
 #!/usr/bin/env python3
+import argparse
+import math
 import os
-import pathlib
+import threading
 import time
 
 import rospy
+from nav_msgs.msg import Odometry
 from rosgraph_msgs.msg import Clock
 
-DEFAULT_TIMEBASE_FILE = "/tmp/tyi_timebase.env"
+from internal_timebase import load_timebase_offset_ns, monotonic_raw_now_ns
+
 DEFAULT_PUBLISH_HZ = 200.0
-
-
-def load_timebase_anchor(path: pathlib.Path):
-    values = {}
-    for raw_line in path.read_text(encoding="ascii").splitlines():
-        line = raw_line.strip()
-        if not line or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        values[key.strip()] = value.strip()
-
-    mode = values.get("TYI_TIMEBASE_MODE")
-    if mode not in {"monotonic_raw_internal", "monotonic_raw_epoch"}:
-        raise ValueError(f"unsupported timebase mode: {mode!r}")
-
-    internal_anchor_ns = int(values.get("INTERNAL_ANCHOR_NS") or values["UNIX_ANCHOR_NS"])
-    mono_anchor_ns = int(values["MONOTONIC_RAW_ANCHOR_NS"])
-    return internal_anchor_ns, mono_anchor_ns
-
-
-def monotonic_raw_now_ns():
-    clock_id = getattr(time, "CLOCK_MONOTONIC_RAW", None)
-    if clock_id is not None:
-        return time.clock_gettime_ns(clock_id)
-    return time.monotonic_ns()
+CLOCK_FUTURE_TOLERANCE_NS = 5_000_000
 
 
 def make_ros_time(ns: int) -> rospy.Time:
-    secs, nsecs = divmod(max(ns, 0), 1_000_000_000)
+    secs, nsecs = divmod(ns, 1_000_000_000)
     return rospy.Time(secs=secs, nsecs=nsecs)
 
 
-def main():
-    rospy.init_node("shared_timebase_clock", anonymous=False, disable_signals=True)
-
-    timebase_file = pathlib.Path(os.environ.get("TYI_TIMEBASE_FILE", DEFAULT_TIMEBASE_FILE))
-    publish_hz = float(os.environ.get("SIM_TIME_PUBLISH_HZ", DEFAULT_PUBLISH_HZ))
-    period = 1.0 / max(publish_hz, 1.0)
-
-    publisher = rospy.Publisher("/clock", Clock, queue_size=10)
-    warned_missing = False
-    internal_anchor_ns = None
-    mono_anchor_ns = None
-
+def publish_clock(rate):
+    offset_ns = load_timebase_offset_ns()
+    rospy.init_node("shared_timebase_clock")
+    publisher = rospy.Publisher("/clock", Clock, queue_size=1, tcp_nodelay=True)
+    period_ns = round(1e9 / rate)
+    deadline_ns = time.monotonic_ns()
+    rospy.loginfo("shared_timebase_clock ready at %.1f Hz", rate)
     while not rospy.is_shutdown():
-        if internal_anchor_ns is None or mono_anchor_ns is None:
-            try:
-                internal_anchor_ns, mono_anchor_ns = load_timebase_anchor(timebase_file)
-                rospy.loginfo(
-                    "shared_timebase_clock ready: file=%s publish_hz=%.1f",
-                    str(timebase_file),
-                    publish_hz,
-                )
-                warned_missing = False
-            except Exception as exc:
-                if not warned_missing:
-                    rospy.logwarn("shared_timebase_clock waiting for timebase anchor: %s", exc)
-                    warned_missing = True
-                time.sleep(0.2)
-                continue
+        publisher.publish(Clock(clock=make_ros_time(monotonic_raw_now_ns() + offset_ns)))
+        deadline_ns += period_ns
+        remaining_ns = deadline_ns - time.monotonic_ns()
+        if remaining_ns > 0:
+            time.sleep(remaining_ns / 1e9)
+        else:
+            deadline_ns = time.monotonic_ns()
 
-        now_ns = internal_anchor_ns + (monotonic_raw_now_ns() - mono_anchor_ns)
-        publisher.publish(Clock(clock=make_ros_time(now_ns)))
-        time.sleep(period)
+
+def check_streams(rate, timeout, with_odometry):
+    offset_ns = load_timebase_offset_ns()
+    if rospy.get_param("/use_sim_time", False) is not True:
+        raise RuntimeError("/use_sim_time must be true for the shared timebase")
+    rospy.init_node("flight_timebase_check", anonymous=True, disable_rosout=True)
+    streams = {"/clock": (Clock, max(0.1, 3.0 / rate))}
+    if with_odometry:
+        ekf = "/high_rate_odom_ekf"
+        lio_topic = rospy.get_param(f"{ekf}/odom_topic", "/tyi/e100/fastlio2/odom")
+        streams[lio_topic] = (Odometry, rospy.get_param(f"{ekf}/max_lio_age_sec", 3.0))
+        if os.environ.get("ENABLE_HIGH_RATE_ODOM_EKF", "true") == "true":
+            topic = rospy.get_param(f"{ekf}/output_topic", "/tyi/e100/ekf_odom")
+            streams[topic] = (Odometry, rospy.get_param(f"{ekf}/max_imu_age_sec", 0.25))
+
+    lock = threading.Lock()
+    previous = {}
+    advanced = set()
+    error = []
+
+    def receive(msg, topic):
+        stamp = msg.clock if topic == "/clock" else msg.header.stamp
+        stamp_ns = stamp.to_nsec()
+        with lock:
+            prev_ns = previous.get(topic, 0)
+            if stamp_ns < prev_ns:
+                error.append(f"{topic}: timestamp moved backwards")
+            if prev_ns and stamp_ns > prev_ns:
+                advanced.add(topic)
+            previous[topic] = stamp_ns
+
+    subscribers = [
+        rospy.Subscriber(topic, msg_type, receive, callback_args=topic, queue_size=1, tcp_nodelay=True)
+        for topic, (msg_type, _) in streams.items()
+    ]
+    deadline = time.monotonic() + timeout
+    try:
+        while not rospy.is_shutdown():
+            with lock:
+                if error:
+                    raise RuntimeError(error[0])
+                now_ns = monotonic_raw_now_ns() + offset_ns
+                problems = []
+                for topic, (_, max_age_sec) in streams.items():
+                    age_ns = now_ns - previous.get(topic, 0)
+                    if topic not in advanced:
+                        problems.append(f"{topic}: no advancing timestamps")
+                    elif not -CLOCK_FUTURE_TOLERANCE_NS <= age_ns <= max_age_sec * 1e9:
+                        problems.append(f"{topic}: timestamp age {age_ns / 1e6:.1f} ms outside bounds")
+            if not problems:
+                print("timebase healthy: " + ", ".join(streams))
+                return
+            if time.monotonic() >= deadline:
+                raise RuntimeError("; ".join(problems))
+            time.sleep(0.02)
+        raise RuntimeError("ROS shut down before validating the timebase")
+    finally:
+        for subscriber in subscribers:
+            subscriber.unregister()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--check", action="store_true")
+    parser.add_argument("--with-odometry", action="store_true")
+    parser.add_argument("--timeout", type=float, default=2.0)
+    args = parser.parse_args()
+
+    try:
+        rate = float(os.environ.get("SIM_TIME_PUBLISH_HZ", DEFAULT_PUBLISH_HZ))
+        if not math.isfinite(rate) or not 1.0 <= rate <= 1e9:
+            raise ValueError("SIM_TIME_PUBLISH_HZ must be a finite rate of at least 1 Hz")
+        if args.check:
+            if not math.isfinite(args.timeout) or args.timeout <= 0:
+                raise ValueError("--timeout must be positive and finite")
+            check_streams(rate, args.timeout, args.with_odometry)
+        else:
+            publish_clock(rate)
+    except (OSError, KeyError, ValueError, RuntimeError, rospy.ROSException) as exc:
+        parser.exit(1, f"flight timebase: {exc}\n")
 
 
 if __name__ == "__main__":

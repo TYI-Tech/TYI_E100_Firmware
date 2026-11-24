@@ -1,27 +1,28 @@
 services:
   flight-core:
-    image: ${IMAGE_NAME:-crpi-zpvbhgsm3t97idht.cn-hangzhou.personal.cr.aliyuncs.com/tyi-tech/tyi_e100:0.1.2}
+    image: ${IMAGE_NAME:-tyi/e100-flight-core:orin2-20261125}
     container_name: ${FLIGHT_CORE_CONTAINER_NAME:-flight-core}
     privileged: true
     network_mode: host
     ipc: host
-    restart: unless-stopped
+    restart: always
     stdin_open: true
     tty: true
     env_file:
-      - .env
-      - machine.env
+      - path: .env
+        required: false
+      - path: machine.env
+        required: false
     environment:
-      DISPLAY: ${DISPLAY:-}
       ROS_MASTER_PORT: ${ROS_MASTER_PORT:-11311}
-      FCU_URL: ${FCU_URL:-/dev/ttyTHS0:115200}
-      GCS_URL: ${GCS_URL:-udp://@192.168.110.227:14550}
-      MAVROS_TGT_SYSTEM: ${MAVROS_TGT_SYSTEM:-1}
+      FCU_URL: ${FCU_URL:-UNCONFIGURED}
+      GCS_URL: ${GCS_URL:-UNCONFIGURED}
+      MAVROS_TGT_SYSTEM: ${MAVROS_TGT_SYSTEM:-UNCONFIGURED}
       MAVROS_TGT_COMPONENT: ${MAVROS_TGT_COMPONENT:-1}
       MAVROS_FCU_PROTOCOL: ${MAVROS_FCU_PROTOCOL:-v2.0}
       MAVROS_LOG_OUTPUT: ${MAVROS_LOG_OUTPUT:-screen}
       MAVROS_RESPAWN: ${MAVROS_RESPAWN:-false}
-      LIVOX_BD_LIST: ${LIVOX_BD_LIST:-147MDLC40020242}
+      LIVOX_BD_LIST: ${LIVOX_BD_LIST:-UNCONFIGURED}
       LIVOX_FRAME_ID: ${LIVOX_FRAME_ID:-livox_frame}
       LIVOX_PUBLISH_FREQ: ${LIVOX_PUBLISH_FREQ:-20.0}
       STRICT_TOPIC_HEALTHCHECK: ${STRICT_TOPIC_HEALTHCHECK:-false}
@@ -30,104 +31,19 @@ services:
       SIM_TIME_PUBLISH_HZ: ${SIM_TIME_PUBLISH_HZ:-100}
       UAV_CONFIG_DIR: /opt/uav/configs
       ROS_LOG_DIR: /opt/uav/logs/ros
+    healthcheck:
+      test: ["CMD", "bash", "/opt/uav/base_stack/docker/runtime/healthcheck.sh"]
+      interval: 10s
+      start_interval: 2s
+      retries: 3
     volumes:
       - ./configs:/opt/uav/configs:ro
       - ./docker/runtime/entrypoint.sh:/opt/uav/base_stack/docker/runtime/entrypoint.sh:ro
+      - ./docker/runtime/healthcheck.sh:/opt/uav/base_stack/docker/runtime/healthcheck.sh:ro
       - ./workspace/src/uav_base_bringup/launch/base_stack.launch:/opt/uav/base_stack/workspace/src/uav_base_bringup/launch/base_stack.launch:ro
       - ./workspace/src/uav_base_bringup/scripts:/opt/uav/base_stack/workspace/src/uav_base_bringup/scripts:ro
       - ./workspace/src/uav_base_bringup/scripts/high_rate_odom_ekf.py:/opt/uav/base_stack/workspace/install_isolated/lib/uav_base_bringup/high_rate_odom_ekf.py:ro
-      - ./logs:/opt/uav/logs
+      - ./logs/ros:/opt/uav/logs/ros
       - ./state/timebase:/opt/tyi/timebase
-      - /tmp/.X11-unix:/tmp/.X11-unix
       - /dev:/dev
       - /run/udev:/run/udev:ro
-  control-gateway:
-    image: ${CONTROL_GATEWAY_IMAGE:-tyi/control-gateway:0.1.0-local}
-    container_name: ${CONTROL_GATEWAY_CONTAINER_NAME:-control-gateway}
-    network_mode: host
-    restart: unless-stopped
-    depends_on:
-      - flight-core
-    env_file:
-      - .env
-    environment:
-      CONTROL_GATEWAY_CONFIG_PATH: /opt/uav/configs/control-gateway/config.json
-      CONTROL_GATEWAY_HTTP_PORT: ${CONTROL_GATEWAY_HTTP_PORT:-8443}
-      CONTROL_GATEWAY_DISCOVERY_PORT: ${CONTROL_GATEWAY_DISCOVERY_PORT:-19001}
-      CONTROL_GATEWAY_SHARED_CODE: ${CONTROL_GATEWAY_SHARED_CODE:-246810}
-      MEDIA_GATEWAY_BASE_URL: http://127.0.0.1:${MEDIA_GATEWAY_HTTP_PORT:-8555}
-      POINTCLOUD_GATEWAY_BASE_URL: http://127.0.0.1:${POINTCLOUD_GATEWAY_HTTP_PORT:-8666}
-      POINTCLOUD_GATEWAY_SHARED_SECRET: ${POINTCLOUD_GATEWAY_SHARED_SECRET:-tyi-pointcloud-dev-secret}
-      POINTCLOUD_GATEWAY_DEFAULT_PROFILE: ${POINTCLOUD_GATEWAY_DEFAULT_PROFILE:-balanced}
-      ROS_MASTER_PORT: ${ROS_MASTER_PORT:-11311}
-      DEVICE_ID: ${DEVICE_ID:-tyi-e100-dev}
-      DISPLAY_NAME: ${DISPLAY_NAME:-TYI E100}
-      FIRMWARE_VERSION: ${FIRMWARE_VERSION:-0.1.2}
-      CONTROL_GATEWAY_VERSION: ${CONTROL_GATEWAY_VERSION:-0.1.0}
-      TYI_OPERATION_MODE: ${TYI_OPERATION_MODE:-dev}
-      TYI_PLANNER_GOAL_REQUIRES_FLIGHT_MODE: ${TYI_PLANNER_GOAL_REQUIRES_FLIGHT_MODE:-true}
-    volumes:
-      - ./configs/control-gateway:/opt/uav/configs/control-gateway:ro
-      - ./logs/control-gateway:/opt/tyi/logs/control-gateway
-      - ./state/timebase:/opt/tyi/timebase:ro
-      - ./state/control-gateway:/opt/tyi/data/control-gateway
-  pointcloud-gateway:
-    image: ${POINTCLOUD_GATEWAY_IMAGE:-tyi/pointcloud-gateway:0.1.0-local}
-    container_name: ${POINTCLOUD_GATEWAY_CONTAINER_NAME:-pointcloud-gateway}
-    network_mode: host
-    restart: unless-stopped
-    depends_on:
-      - flight-core
-    env_file:
-      - .env
-    environment:
-      POINTCLOUD_GATEWAY_CONFIG_PATH: /opt/uav/configs/pointcloud-gateway/config.json
-      POINTCLOUD_GATEWAY_HTTP_PORT: ${POINTCLOUD_GATEWAY_HTTP_PORT:-8666}
-      POINTCLOUD_GATEWAY_SHARED_SECRET: ${POINTCLOUD_GATEWAY_SHARED_SECRET:-tyi-pointcloud-dev-secret}
-      POINTCLOUD_GATEWAY_DEFAULT_PROFILE: ${POINTCLOUD_GATEWAY_DEFAULT_PROFILE:-balanced}
-      ROS_MASTER_PORT: ${ROS_MASTER_PORT:-11311}
-    volumes:
-      - ./configs/pointcloud-gateway:/opt/uav/configs/pointcloud-gateway:ro
-      - ./logs/pointcloud-gateway:/opt/tyi/logs/pointcloud-gateway
-      - ./state/timebase:/opt/tyi/timebase:ro
-  media-gateway:
-    profiles:
-      - media
-    image: ${MEDIA_GATEWAY_IMAGE:-tyi/media-gateway:0.1.0-local}
-    container_name: ${MEDIA_GATEWAY_CONTAINER_NAME:-media-gateway}
-    network_mode: host
-    restart: unless-stopped
-    depends_on:
-      - control-gateway
-    runtime: nvidia
-    env_file:
-      - .env
-    environment:
-      MEDIA_GATEWAY_CONFIG_PATH: /opt/uav/configs/media-gateway/config.json
-      MEDIA_GATEWAY_HTTP_PORT: ${MEDIA_GATEWAY_HTTP_PORT:-8555}
-      MEDIA_CAMERA_PREFERRED_DEVICE: ${MEDIA_CAMERA_PREFERRED_DEVICE:-/dev/v4l/by-path/platform-3610000.xhci-usb-0:1:1.3-video-index0}
-      NVIDIA_VISIBLE_DEVICES: all
-      NVIDIA_DRIVER_CAPABILITIES: video,compute,utility
-      MEDIA_GATEWAY_ENCODER: ${MEDIA_GATEWAY_ENCODER:-auto}
-    volumes:
-      - ./configs/media-gateway:/opt/uav/configs/media-gateway:ro
-      - ./logs/media-gateway:/opt/tyi/logs/media-gateway
-      - /dev:/dev
-      - /run/udev:/run/udev:ro
-    device_cgroup_rules:
-      - 'c 81:* rmw'
-  vision-gateway:
-    profiles:
-      - vision
-    image: ${VISION_GATEWAY_IMAGE:-tyi/vision-gateway:0.1.0-local}
-    container_name: ${VISION_GATEWAY_CONTAINER_NAME:-vision-gateway}
-    network_mode: host
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      VISION_GATEWAY_HTTP_PORT: ${VISION_GATEWAY_HTTP_PORT:-8765}
-      VISION_GATEWAY_CONFIG_PATH: /opt/uav/configs/vision-gateway/config.json
-    volumes:
-      - ./configs:/opt/uav/configs:ro
-      - ./logs/vision-gateway:/opt/tyi/logs/vision-gateway

@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/Livox-SDK/Livox-SDK2",
+  "commit": "c0796f04c143143899c87a773d9f6b7136453c0b",
+  "archive_url": "https://codeload.github.com/Livox-SDK/Livox-SDK2/zip/c0796f04c143143899c87a773d9f6b7136453c0b",
+  "sha256": "806b1175084efb5ec673ed81c17548b28bca697b327bd8306b8f331912c40e8b",
+  "size_bytes": 559033,
+  "commit_message": "Support Mid-360l LiDAR, add IMU range, high ESC speed, PCL freq configuration, and query keys"
+}

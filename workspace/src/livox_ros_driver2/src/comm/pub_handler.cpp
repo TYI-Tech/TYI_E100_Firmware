@@ -24,6 +24,7 @@
 
 #include "pub_handler.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <chrono>
 #include <ctime>
@@ -121,7 +122,9 @@ uint64_t GetSharedMonotonicInternalTimestampNs() {
 
 constexpr uint64_t kLivoxNoSyncImuStepNs = 5000000ULL;       // 200 Hz
 constexpr uint64_t kLivoxNoSyncMinPacketStepNs = 1000000ULL; // 1 ms fallback
-constexpr uint64_t kLivoxNoSyncMaxLagNs = 250000000ULL;
+constexpr int64_t kLivoxNoSyncMaxLagNs = 20000000;
+constexpr int64_t kLivoxNoSyncMaxLeadNs = 2000000;
+constexpr int64_t kLivoxNoSyncMaxSlewNs = 100000;
 
 std::mutex g_nosync_clock_mutex;
 std::map<uint64_t, uint64_t> g_nosync_last_ns;
@@ -137,22 +140,26 @@ uint64_t GetNoSyncSteppedTimestampNs(uint32_t handle, bool is_imu, uint64_t step
     effective_step_ns = is_imu ? kLivoxNoSyncImuStepNs : kLivoxNoSyncMinPacketStepNs;
   }
 
+  // A point packet contains a span of samples. Timestamp its first point using
+  // the host receive clock minus that span; an IMU packet contains one sample.
+  const int64_t packet_age_ns = is_imu ? 0 : static_cast<int64_t>(effective_step_ns);
+  const int64_t observed_ns = std::max<int64_t>(1, static_cast<int64_t>(now_ns) - packet_age_ns);
   std::lock_guard<std::mutex> lock(g_nosync_clock_mutex);
   uint64_t& last_ns = g_nosync_last_ns[MakeNoSyncClockKey(handle, is_imu)];
   if (last_ns == 0) {
-    last_ns = now_ns;
+    last_ns = observed_ns;
     return last_ns;
   }
 
-  uint64_t next_ns = last_ns + effective_step_ns;
-  if (now_ns > next_ns + kLivoxNoSyncMaxLagNs) {
-    next_ns = now_ns - kLivoxNoSyncMaxLagNs;
-  }
-  if (next_ns <= last_ns) {
-    next_ns = last_ns + effective_step_ns;
-  }
-
-  last_ns = next_ns;
+  // Preserve hardware cadence between packets while pulling both independent
+  // streams toward the same monotonic clock. Without phase feedback a small
+  // error in either nominal step grows for the full driver uptime.
+  const int64_t predicted_ns = static_cast<int64_t>(last_ns + effective_step_ns);
+  const int64_t phase_ns = (observed_ns - predicted_ns) / 48;
+  const int64_t slew_ns = std::max(-kLivoxNoSyncMaxSlewNs, std::min(kLivoxNoSyncMaxSlewNs, phase_ns));
+  const int64_t next_ns = std::max(observed_ns - kLivoxNoSyncMaxLagNs,
+      std::min(observed_ns + kLivoxNoSyncMaxLeadNs, predicted_ns + slew_ns));
+  last_ns = static_cast<uint64_t>(std::max(static_cast<int64_t>(last_ns) + 1, next_ns));
   return last_ns;
 }
 
@@ -260,7 +267,7 @@ void PubHandler::OnLivoxLidarPointCloudCallback(uint32_t handle, const uint8_t d
   packet.extrinsic_enable = false; 
   if (dev_type == LivoxLidarDeviceType::kLivoxLidarTypeIndustrialHAP) {
     packet.line_num = kLineNumberHAP;
-  } else if (dev_type == LivoxLidarDeviceType::kLivoxLidarTypeMid360) {
+  } else if (dev_type == LivoxLidarDeviceType::kLivoxLidarTypeMid360 || dev_type == LivoxLidarDeviceType::kLivoxLidarTypeMid360s) {
     packet.line_num = kLineNumberMid360;
   } else {
     packet.line_num = kLineNumberDefault;

@@ -41,7 +41,7 @@ class ImuProcess
   ~ImuProcess();
   
   void Reset();
-  void Reset(double start_timestamp, const sensor_msgs::ImuConstPtr &lastimu);
+  void Reanchor(const sensor_msgs::ImuConstPtr& sample, const state_ikfom& state);
   void set_extrinsic(const V3D &transl, const M3D &rot);
   void set_extrinsic(const V3D &transl);
   void set_extrinsic(const MD(4,4) &T);
@@ -67,7 +67,6 @@ class ImuProcess
   void UndistortPcl(const MeasureGroup &meas, esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, PointCloudXYZI &pcl_in_out);
 
   PointCloudXYZI::Ptr cur_pcl_un_;
-  sensor_msgs::ImuConstPtr last_imu_;
   deque<sensor_msgs::ImuConstPtr> v_imu_;
   vector<Pose6D> IMUpose;
   vector<M3D>    v_rot_pcl_;
@@ -78,7 +77,7 @@ class ImuProcess
   V3D angvel_last;
   V3D acc_s_last;
   double start_timestamp_;
-  double last_lidar_end_time_;
+  double last_lidar_end_time_ = 0.0;
   int    init_iter_num = 1;
   bool   b_first_frame_ = true;
   bool   imu_need_init_ = true;
@@ -98,7 +97,6 @@ ImuProcess::ImuProcess()
   angvel_last     = Zero3d;
   Lidar_T_wrt_IMU = Zero3d;
   Lidar_R_wrt_IMU = Eye3d;
-  last_imu_.reset(new sensor_msgs::Imu());
 }
 
 ImuProcess::~ImuProcess() {}
@@ -114,7 +112,6 @@ void ImuProcess::Reset()
   init_iter_num     = 1;
   v_imu_.clear();
   IMUpose.clear();
-  last_imu_.reset(new sensor_msgs::Imu());
   cur_pcl_un_.reset(new PointCloudXYZI());
 }
 
@@ -209,17 +206,25 @@ void ImuProcess::IMU_init(const MeasureGroup &meas, esekfom::esekf<state_ikfom, 
   init_P(18,18) = init_P(19,19) = init_P(20,20) = 0.001;
   init_P(21,21) = init_P(22,22) = 0.00001; 
   kf_state.change_P(init_P);
-  last_imu_ = meas.imu.back();
 
+}
+
+void ImuProcess::Reanchor(const sensor_msgs::ImuConstPtr& sample, const state_ikfom& state)
+{
+  last_lidar_end_time_ = sample->header.stamp.toSec();
+  const auto& gyro = sample->angular_velocity;
+  const auto& acc = sample->linear_acceleration;
+  angvel_last = V3D(gyro.x, gyro.y, gyro.z) - state.bg;
+  acc_s_last = state.rot * (V3D(acc.x, acc.y, acc.z) * G_m_s2 / mean_acc.norm() - state.ba);
+  for (int i = 0; i < 3; ++i) acc_s_last[i] += state.grav[i];
 }
 
 void ImuProcess::UndistortPcl(const MeasureGroup &meas, esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, PointCloudXYZI &pcl_out)
 {
-  /*** add the imu of the last frame-tail to the of current frame-head ***/
-  auto v_imu = meas.imu;
-  v_imu.push_front(last_imu_);
-  const double &imu_beg_time = v_imu.front()->header.stamp.toSec();
-  const double &imu_end_time = v_imu.back()->header.stamp.toSec();
+  // The frontend supplies a continuous window clipped to the propagation
+  // start and the LiDAR frame end, including interpolated endpoints.
+  const auto& v_imu = meas.imu;
+  const double imu_beg_time = v_imu.front()->header.stamp.toSec();
 
   double pcl_beg_time = meas.lidar_beg_time;
   double pcl_end_time = meas.lidar_end_time;
@@ -238,7 +243,15 @@ void ImuProcess::UndistortPcl(const MeasureGroup &meas, esekfom::esekf<state_ikf
   /*** Initialize IMU pose ***/
   state_ikfom imu_state = kf_state.get_x();
   IMUpose.clear();
-  IMUpose.push_back(set_pose6d(0.0, acc_s_last, angvel_last, imu_state.vel, imu_state.pos, imu_state.rot.toRotationMatrix()));
+  const double first_offset = imu_beg_time - pcl_beg_time;
+  IMUpose.push_back(set_pose6d(first_offset, acc_s_last, angvel_last, imu_state.vel, imu_state.pos, imu_state.rot.toRotationMatrix()));
+  if (first_offset > 0)
+  {
+    const auto first_compensated = std::lower_bound(
+        pcl_out.points.begin(), pcl_out.points.end(), first_offset,
+        [](const PointType& point, double t) { return point.curvature * 1e-3 < t; });
+    pcl_out.erase(pcl_out.begin(), first_compensated);
+  }
 
   /*** forward propagation at each imu point ***/
   V3D angvel_avr, acc_avr, acc_imu, vel_imu, pos_imu;
@@ -295,13 +308,7 @@ void ImuProcess::UndistortPcl(const MeasureGroup &meas, esekfom::esekf<state_ikf
     IMUpose.push_back(set_pose6d(offs_t, acc_s_last, angvel_last, imu_state.vel, imu_state.pos, imu_state.rot.toRotationMatrix()));
   }
 
-  /*** calculated the pos and attitude prediction at the frame-end ***/
-  double note = pcl_end_time > imu_end_time ? 1.0 : -1.0;
-  dt = note * (pcl_end_time - imu_end_time);
-  kf_state.predict(dt, Q, in);
-  
   imu_state = kf_state.get_x();
-  last_imu_ = meas.imu.back();
   last_lidar_end_time_ = pcl_end_time;
 
   /*** undistort each lidar point (backward propagation) ***/
@@ -350,7 +357,8 @@ void ImuProcess::Process(const MeasureGroup &meas,  esekfom::esekf<state_ikfom, 
   double t1,t2,t3;
   t1 = omp_get_wtime();
 
-  if(meas.imu.empty()) {return;};
+  cur_pcl_un_->clear();
+  if (meas.imu.empty()) return;
   ROS_ASSERT(meas.lidar != nullptr);
 
   if (imu_need_init_)
@@ -360,7 +368,7 @@ void ImuProcess::Process(const MeasureGroup &meas,  esekfom::esekf<state_ikfom, 
 
     imu_need_init_ = true;
     
-    last_imu_   = meas.imu.back();
+    Reanchor(meas.imu.back(), kf_state.get_x());
 
     state_ikfom imu_state = kf_state.get_x();
     if (init_iter_num > MAX_INI_COUNT)

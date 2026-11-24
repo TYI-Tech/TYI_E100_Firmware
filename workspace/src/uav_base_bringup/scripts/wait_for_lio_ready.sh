@@ -19,8 +19,10 @@ sys.exit(0 if math.isfinite(rate) and rate >= minimum else 1)
 PYRATE
 }
 
-deadline=$((SECONDS + wait_timeout))
-while (( SECONDS < deadline )); do
+# Use kernel uptime so a clock correction at boot cannot expire the wait.
+read -r uptime _ < /proc/uptime
+deadline=$(( ${uptime%.*} + wait_timeout ))
+while read -r uptime _ < /proc/uptime && (( ${uptime%.*} < deadline )); do
   output="$(timeout "${rate_sample_secs}" rostopic hz "${odom_topic}" 2>&1 || true)"
   rate="$(printf '%s\n' "${output}" | awk '/average rate:/ {value=$3} END {print value}')"
   if rate_is_enough "${rate:-0}" "${odom_min_hz}"; then

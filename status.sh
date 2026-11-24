@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
-run_compose_build_mode ps
+root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec bash "${root_dir}/scripts/status.sh" "$@"

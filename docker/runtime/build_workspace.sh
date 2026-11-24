@@ -20,7 +20,7 @@ if [[ -f "${LIVOX_DRIVER_DIR}/package_ROS1.xml" ]]; then
 fi
 
 rosdep init 2>/dev/null || true
-rosdep update --rosdistro noetic || echo "rosdep update failed, continuing with existing cache"
+rosdep update --rosdistro noetic --include-eol-distros
 
 # Install heavy PCL ROS dependencies without recommended desktop packages.
 apt-get install -y --no-install-recommends ros-noetic-pcl-ros
@@ -64,11 +64,11 @@ if [[ ! -r "${GEOGRAPHICLIB_GEOID}" ]] && [[ ! -r "${GEOGRAPHICLIB_LOCAL_GEOID}"
   exit 1
 fi
 
-cmake -S /opt/uav/base_stack/third_party/Livox-SDK2 \
-      -B /opt/uav/base_stack/third_party/Livox-SDK2/build \
+cmake -S /opt/uav/base_stack/third_party/Livox-SDK2-mid360s \
+      -B /opt/uav/base_stack/third_party/Livox-SDK2-mid360s/build \
       -DCMAKE_BUILD_TYPE=Release
-cmake --build /opt/uav/base_stack/third_party/Livox-SDK2/build --parallel "$(nproc)"
-cmake --install /opt/uav/base_stack/third_party/Livox-SDK2/build
+cmake --build /opt/uav/base_stack/third_party/Livox-SDK2-mid360s/build --parallel "$(nproc)"
+cmake --install /opt/uav/base_stack/third_party/Livox-SDK2-mid360s/build
 
 ln -sf /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /opt/uav/base_stack/workspace/src/CMakeLists.txt
 

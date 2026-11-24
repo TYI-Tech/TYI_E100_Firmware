@@ -154,9 +154,6 @@ void fastlioCallback(const nav_msgs::Odometry::ConstPtr& msg) {
                                msg->pose.pose.orientation.z);
   latest_lio_stamp = msg->header.stamp;
   has_lio_odom = true;
-  if (init_flag) {
-    publishVisionPose();
-  }
 }
 
 void px4OdomCallback(const nav_msgs::Odometry::ConstPtr& msg) {
@@ -198,15 +195,17 @@ int main(int argc, char** argv) {
   sliding_yaw_avg = SlidingWindowAverage(window_size);
 
   ros::Subscriber sub_lio =
-      nh.subscribe<nav_msgs::Odometry>(fastlio_odom_topic, fastlio_queue_size, fastlioCallback);
+      nh.subscribe<nav_msgs::Odometry>(fastlio_odom_topic, fastlio_queue_size, fastlioCallback,
+                                     ros::TransportHints().tcpNoDelay());
   ros::Subscriber sub_px4 =
-      nh.subscribe<nav_msgs::Odometry>(px4_odom_topic, 5, px4OdomCallback);
+      nh.subscribe<nav_msgs::Odometry>(px4_odom_topic, 5, px4OdomCallback,
+                                     ros::TransportHints().tcpNoDelay());
   pub_pose = nh.advertise<geometry_msgs::PoseStamped>(vision_pose_topic, vision_queue_size);
 
   if (!std::isfinite(publish_rate_hz) || publish_rate_hz <= 0.0) {
     publish_rate_hz = 30.0;
   }
-  const double poll_rate_hz = publish_rate_hz < 200.0 ? 200.0 : publish_rate_hz * 5.0;
+  const double poll_rate_hz = publish_rate_hz;
   ROS_INFO("[fastlio_to_mavros] input=%s output=%s publish_rate=%.1fHz poll_rate=%.1fHz",
            fastlio_odom_topic.c_str(), vision_pose_topic.c_str(), publish_rate_hz, poll_rate_hz);
   ros::WallRate rate(poll_rate_hz);
@@ -224,6 +223,10 @@ int main(int argc, char** argv) {
       init_flag = true;
       ROS_INFO("[fastlio_to_mavros] Init done. yaw_avg(deg)=%.2f",
                yaw_avg * 180.0 / M_PI);
+    }
+
+    if (init_flag && has_lio_odom) {
+      publishVisionPose();
     }
 
     rate.sleep();

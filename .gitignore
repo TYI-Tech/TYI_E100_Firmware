@@ -15,3 +15,17 @@ workspace/install/
 third_party/Livox-SDK2/build/
 **/__pycache__/
 **/*.pyc
+/.env
+/machine.env
+/configs/livox/MID360_config.json
+/workspace/build_isolated/
+/workspace/devel_isolated/
+/workspace/install_isolated/
+/third_party/Livox-SDK2-mid360s/build/
+*.bag
+*.bag.active
+*.mcap
+*.ulg
+*.tlog
+*.pcd
+*.jsonl

@@ -244,6 +244,9 @@ px4flow:
 
 # vision_pose_estimate
 vision_pose:
+  world_velocity_topic: /tyi/e100/ekf_odom
+  velocity_parent_frame: robot/odom
+  velocity_child_frame: base_link
   tf:
     listen: false           # enable tf listener (disable topic subscribers)
     frame_id: "odom"

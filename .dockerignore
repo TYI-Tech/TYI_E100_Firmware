@@ -12,3 +12,15 @@ backups
 state
 *.bak*
 **/*.bak*
+machine.env
+configs/livox/MID360_config.json
+**/build_isolated
+**/devel_isolated
+**/install_isolated
+**/*.bag
+**/*.bag.active
+**/*.mcap
+**/*.ulg
+**/*.tlog
+**/*.pcd
+**/*.jsonl

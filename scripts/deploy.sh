@@ -1,37 +1,42 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-
-source "${SCRIPT_DIR}/lib/common.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
 
 cd "${ROOT_DIR}"
-require_file ".env"
-require_file "machine.env"
-require_file "configs/livox/MID360_config.json"
+case "${1:---pull}" in
+  --pull|--local|--build) mode="${1:---pull}" ;;
+  -h|--help) printf 'Usage: bash ./deploy.sh [--pull|--local|--build]\n'; exit 0 ;;
+  *) printf 'Usage: bash ./deploy.sh [--pull|--local|--build]\n' >&2; exit 2 ;;
+esac
 
-mode="pull"
-if [[ "${1:-}" == "--build" ]]; then
-  mode="build"
-elif [[ "${1:-}" == "--pull" || -z "${1:-}" ]]; then
-  mode="pull"
-elif [[ -n "${1:-}" ]]; then
-  printf '[tyi_e100_firmware] ERROR: unsupported option %s\n' "${1}" >&2
-  printf '[tyi_e100_firmware] Usage: bash ./scripts/deploy.sh [--pull|--build]\n' >&2
-  exit 1
-fi
+require_file machine.env
+case "${mode}" in
+  --pull)
+    tag=$(<VERSION)
+    archive="e100-flight-core-linux-arm64.tar.zst"
+    release_url="https://github.com/TYI-Tech/TYI_E100_Firmware/releases/download/${tag}"
+    download_dir=$(mktemp -d)
+    trap 'rm -rf "${download_dir}"' EXIT
+    curl --fail --location --retry 3 --output "${download_dir}/${archive}" "${release_url}/${archive}"
+    curl --fail --location --retry 3 --output "${download_dir}/SHA256SUMS" "${release_url}/SHA256SUMS"
+    (
+      cd "${download_dir}"
+      sha256sum -c SHA256SUMS
+      if docker info >/dev/null 2>&1; then
+        zstd -dc "${archive}" | docker load
+      else
+        zstd -dc "${archive}" | sudo docker load
+      fi
+    )
+    ;;
+  --build) run_compose_build_mode build flight-core ;;
+esac
 
-sudocmd="sudo"
 if [[ "${EUID}" -eq 0 ]]; then
-  sudocmd=""
-fi
-${sudocmd} bash "${SCRIPT_DIR}/configure_machine.sh"
-if [[ "${mode}" == "build" ]]; then
-  run_compose_build_mode build
-  run_compose_build_mode up -d --remove-orphans
+  bash ./scripts/configure_machine.sh --skip-network --skip-restart
 else
-  run_compose pull flight-core
-  run_compose_build_mode build control-gateway pointcloud-gateway media-gateway
-  run_compose_build_mode up -d --remove-orphans
+  sudo bash ./scripts/configure_machine.sh --skip-network --skip-restart
 fi
+
+run_compose up -d --pull never --wait --wait-timeout 120 flight-core

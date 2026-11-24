@@ -11,6 +11,11 @@ preprocess:
     timestamp_unit: 3
     scan_rate: 10
 
+frontend:
+    imu_timeout_sec: 0.10
+    lidar_timeout_sec: 0.20
+    max_imu_gap_sec: 0.020
+
 mapping:
     acc_cov: 0.1
     gyr_cov: 0.1
@@ -18,6 +23,14 @@ mapping:
     b_gyr_cov: 0.0001
     fov_degree: 360
     det_range: 100.0
+    map_backend: ikd_tree  # ivox is available for isolated replay
+    match_threads: 2
+    reuse_fitted_planes: true
+    profile_frames: false
+    ivox_resolution: 0.5
+    ivox_nearby: 18
+    ivox_max_voxels: 200000
+    ivox_max_points_per_voxel: 12
     extrinsic_est_en: false
     extrinsic_T: [ -0.011, -0.02329, 0.04412 ]
     extrinsic_R: [ 1, 0, 0,

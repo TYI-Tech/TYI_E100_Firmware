@@ -28,10 +28,6 @@ trigger_notify2:
     - Trigger \#2
     - Started
 
-# rosbag example
-start_recorder:
-  service: start_recorder
-
 start_talker:
   service: start_talker
 
@@ -51,11 +47,6 @@ trigger_wireshark:
   shell:
     - $HOME/bin/al76-wireshark.sh # will expand
     - $PWD  # nope
-
-rosbag_armed:
-  event: [armed, disarmed, start_recorder, stop_all] # yaml array is fine too
-  action: run, stop, run, stop
-  shell: rosrun rosbag record -a -x '/mavlink/.*' --lz4 -o 'uav'
 
 rosrun_talker:
   event: start_talker, stop_all

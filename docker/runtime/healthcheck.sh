@@ -17,9 +17,20 @@ fi
 
 required_nodes=(
   "/livox_lidar_publisher2"
+  "/fastlio2_odom"
   "/fastlio_to_mavros"
   "/mavros"
 )
+
+if [[ "${ENABLE_HIGH_RATE_ODOM_EKF:-true}" == "true" ]]; then
+  required_nodes+=("/high_rate_odom_ekf")
+fi
+
+if [[ "${TYI_TIMEBASE_MODE:-monotonic_raw_internal}" == "monotonic_raw_internal" || "${TYI_TIMEBASE_MODE:-monotonic_raw_internal}" == "monotonic_raw_epoch" ]]; then
+  required_nodes+=("/shared_timebase_clock")
+  clock_script="/opt/uav/base_stack/workspace/src/uav_base_bringup/scripts/shared_timebase_clock.py"
+  timeout 8s python3 "${clock_script}" --check --with-odometry
+fi
 
 if [[ "${STRICT_TOPIC_HEALTHCHECK}" != "true" ]]; then
   nodes="$(rosnode list 2>/dev/null || true)"
@@ -36,6 +47,7 @@ required_topics=(
   "/livox/lidar"
   "/livox/imu"
   "/tyi/e100/fastlio2/odom"
+  "/tyi/e100/ekf_odom"
   "/mavros/vision_pose/pose"
   "/mavros/state"
 )
